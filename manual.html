@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TECHWING DMS 업무 흐름 매뉴얼</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pri:#1e3a8a;--prih:#1d4ed8;--pril:#dbeafe;
+  --ok:#059669;--ok-bg:#d1fae5;
+  --wn:#d97706;--wn-bg:#fef3c7;
+  --er:#dc2626;--er-bg:#fee2e2;
+  --pu:#7c3aed;--pu-bg:#ede9fe;
+  --cy:#0891b2;--cy-bg:#cffafe;
+  --tx:#18192a;--tx2:#52597a;--tx3:#8e96b8;
+  --bg:#f4f6fb;--surf:#fff;--bdr:#e3e7f0;
+  --r:8px;--rl:14px
+}
+body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+
+/* HEADER */
+.hd{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 60%,#1d4ed8 100%);border-radius:var(--rl);padding:40px 48px;margin-bottom:36px;color:#fff}
+.hd-logo{font-size:11px;letter-spacing:.15em;opacity:.6;margin-bottom:8px;text-transform:uppercase}
+.hd h1{font-size:28px;font-weight:800;margin-bottom:6px}
+.hd p{opacity:.75;font-size:14px}
+.hd-meta{margin-top:20px;display:flex;gap:24px;flex-wrap:wrap}
+.hd-meta span{font-size:12px;opacity:.7;display:flex;align-items:center;gap:5px}
+
+/* TOC */
+.toc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:24px 28px;margin-bottom:32px}
+.toc h2{font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.toc ol{padding-left:18px;display:grid;grid-template-columns:1fr 1fr;gap:4px 32px}
+.toc li{font-size:13px;color:var(--pri);cursor:pointer;padding:3px 0}
+.toc li:hover{text-decoration:underline}
+
+/* SECTION */
+.sec{margin-bottom:40px}
+.sec-title{font-size:18px;font-weight:800;color:var(--pri);margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid var(--pril);display:flex;align-items:center;gap:8px}
+.sec-num{width:30px;height:30px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:stretch;gap:0;margin-bottom:28px;overflow-x:auto;padding-bottom:8px}
+.flow-step{flex:1;min-width:140px;background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--rl);padding:16px 12px;text-align:center;position:relative}
+.flow-step:not(:last-child)::after{content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--tx3);z-index:1}
+.flow-step .fs-num{width:24px;height:24px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.flow-step .fs-title{font-size:12px;font-weight:700;margin-bottom:4px}
+.flow-step .fs-who{font-size:11px;color:var(--tx3)}
+.flow-step.c1{border-color:#3b82f6;background:#eff6ff}.flow-step.c1 .fs-num{background:#3b82f6}
+.flow-step.c2{border-color:#8b5cf6;background:#f5f3ff}.flow-step.c2 .fs-num{background:#8b5cf6}
+.flow-step.c3{border-color:#0891b2;background:#ecfeff}.flow-step.c3 .fs-num{background:#0891b2}
+.flow-step.c4{border-color:#d97706;background:#fffbeb}.flow-step.c4 .fs-num{background:#d97706}
+.flow-step.c5{border-color:#059669;background:#f0fdf4}.flow-step.c5 .fs-num{background:#059669}
+.flow-step.c6{border-color:#dc2626;background:#fef2f2}.flow-step.c6 .fs-num{background:#dc2626}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;background:var(--surf);border-radius:var(--rl);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px}
+.tbl th{background:var(--pri);color:#fff;padding:11px 14px;text-align:left;font-size:12px;font-weight:600;white-space:nowrap}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--bdr);font-size:13px;vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f8f9fd}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:20px}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px}
+.card h3{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.card ul{padding-left:16px}
+.card li{font-size:12px;color:var(--tx2);margin-bottom:5px}
+.card .icon{width:28px;height:28px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
+.bdg-blue{background:var(--pril);color:var(--pri)}
+.bdg-pu{background:var(--pu-bg);color:var(--pu)}
+.bdg-cy{background:var(--cy-bg);color:var(--cy)}
+.bdg-wn{background:var(--wn-bg);color:var(--wn)}
+.bdg-ok{background:var(--ok-bg);color:var(--ok)}
+.bdg-er{background:var(--er-bg);color:var(--er)}
+
+/* CALLOUT */
+.callout{border-radius:var(--r);padding:14px 18px;margin-bottom:16px;border-left:4px solid;font-size:13px}
+.callout-blue{background:var(--pril);border-color:var(--pri);color:var(--pri)}
+.callout-ok{background:var(--ok-bg);border-color:var(--ok);color:#065f46}
+.callout-wn{background:var(--wn-bg);border-color:var(--wn);color:#92400e}
+.callout-er{background:var(--er-bg);border-color:var(--er);color:#991b1b}
+.callout b{display:block;margin-bottom:4px;font-size:14px}
+
+/* STEP DETAIL */
+.step-detail{border:1.5px solid var(--bdr);border-radius:var(--rl);margin-bottom:20px;overflow:hidden}
+.step-detail-hd{padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bdr)}
+.step-detail-hd .sn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.step-detail-hd h3{font-size:14px;font-weight:700}
+.step-detail-hd p{font-size:12px;color:var(--tx3)}
+.step-detail-bd{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.step-col h4{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.step-col ul{padding-left:14px}
+.step-col li{font-size:12px;color:var(--tx2);margin-bottom:5px}
+.step-col .tag-list{display:flex;flex-wrap:wrap;gap:5px}
+
+/* ROLE TABLE */
+.role-card{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:8px}
+.role-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+
+@media(max-width:700px){
+  .flow{flex-direction:column}
+  .flow-step:not(:last-child)::after{content:'↓';right:auto;left:50%;top:auto;bottom:-16px;transform:translateX(-50%)}
+  .step-detail-bd{grid-template-columns:1fr}
+  .toc ol{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-logo">TECHWING · 품질보증팀 · 사내표준관리</div>
+  <h1>📋 ISO 문서 관리 시스템 업무 흐름 매뉴얼</h1>
+  <p>전자 문서 관리 시스템(DMS) 사용 절차 및 역할별 업무 가이드</p>
+  <div class="hd-meta">
+    <span>📅 작성일: 2026년 6월</span>
+    <span>📌 버전: Rev.1.0</span>
+    <span>🏢 소관부서: 품질보증팀</span>
+    <span>📄 적용기준: ISO 9001:2015</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>📑 목차</h2>
+  <ol>
+    <li onclick="document.getElementById('s1').scrollIntoView({behavior:'smooth'})">시스템 개요</li>
+    <li onclick="document.getElementById('s2').scrollIntoView({behavior:'smooth'})">전체 업무 흐름도</li>
+    <li onclick="document.getElementById('s3').scrollIntoView({behavior:'smooth'})">단계별 상세 절차</li>
+    <li onclick="document.getElementById('s4').scrollIntoView({behavior:'smooth'})">역할별 권한 및 책임</li>
+    <li onclick="document.getElementById('s5').scrollIntoView({behavior:'smooth'})">AI 검토 기능 사용법</li>
+    <li onclick="document.getElementById('s6').scrollIntoView({behavior:'smooth'})">실시간 그룹장 검토</li>
+    <li onclick="document.getElementById('s7').scrollIntoView({behavior:'smooth'})">문서 상태 코드 안내</li>
+    <li onclick="document.getElementById('s8').scrollIntoView({behavior:'smooth'})">FAQ / 자주 묻는 질문</li>
+  </ol>
+</div>
+
+<!-- S1: 개요 -->
+<div class="sec" id="s1">
+  <div class="sec-title"><div class="sec-num">1</div>시스템 개요</div>
+  <div class="callout callout-blue">
+    <b>📌 TECHWING DMS란?</b>
+    ISO 9001 기반 사내 표준 문서를 전자적으로 작성·검토·승인·배포·관리하는 통합 전자 문서 관리 시스템입니다. 모든 문서 이력이 자동 기록되며, 다단계 검토 및 AI 보조 기능을 통해 문서 품질을 보장합니다.
+  </div>
+  <div class="cards">
+    <div class="card">
+      <h3><div class="icon" style="background:#dbeafe">🌐</div>접속 방법</h3>
+      <ul>
+        <li>인터넷 브라우저(Chrome 권장) 실행</li>
+        <li>사내 DMS URL 접속</li>
+        <li>사번 / 비밀번호 입력 후 로그인</li>
+        <li>최초 로그인 시 비밀번호 변경 권장</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><div class="icon" style="background:#d1fae5">📂</div>적용 문서 범위</h3>
+      <ul>
+        <li>표준서 (Standard)</li>
+        <li>절차서 (Procedure)</li>
+        <li>지침서 (Guideline)</li>
+        <li>서식 (Form)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><div class="icon" style="background:#ede9fe">⚡</div>주요 특징</h3>
+      <ul>
+        <li>실시간 다중 사용자 동기화</li>
+        <li>AI 기반 문서 자동 검토</li>
+        <li>단계별 자동 알림 발송</li>
+        <li>실시간 댓글 방식 그룹장 검토</li>
+        <li>전자 결재 이력 자동 보존</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- S2: 전체 흐름 -->
+<div class="sec" id="s2">
+  <div class="sec-title"><div class="sec-num">2</div>전체 업무 흐름도</div>
+  <div class="flow">
+    <div class="flow-step c1">
+      <div class="fs-num">1</div>
+      <div class="fs-title">문서 작성</div>
+      <div class="fs-who">각 부서 담당자</div>
+    </div>
+    <div class="flow-step c2">
+      <div class="fs-num">2</div>
+      <div class="fs-title">1차 검토</div>
+      <div class="fs-who">작성자 부서 팀장</div>
+    </div>
+    <div class="flow-step c2">
+      <div class="fs-num">3</div>
+      <div class="fs-title">2차 검토</div>
+      <div class="fs-who">작성자 부서 그룹장</div>
+    </div>
+    <div class="flow-step c4">
+      <div class="fs-num">4</div>
+      <div class="fs-title">사내표준관리 검토</div>
+      <div class="fs-who">사내표준관리 담당자<br>+ AI 자동 검토</div>
+    </div>
+    <div class="flow-step c3">
+      <div class="fs-num">5</div>
+      <div class="fs-title">유관 그룹장 검토</div>
+      <div class="fs-who">관련 부서 그룹장<br>실시간 댓글</div>
+    </div>
+    <div class="flow-step c5">
+      <div class="fs-num">6</div>
+      <div class="fs-title">최종 승인 · 배포</div>
+      <div class="fs-who">총괄 임원<br>그룹웨어 연동</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>단계</th><th>검토자</th><th>문서 상태</th><th>자동 알림</th><th>소요 목표</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="bdg bdg-blue">1단계</span> 문서 작성</td><td>각 부서 담당자</td><td><span class="bdg bdg-blue">임시저장</span></td><td>-</td><td>작성자 재량</td></tr>
+      <tr><td><span class="bdg bdg-pu">2단계</span> 1차 검토</td><td>작성자 부서 팀장</td><td><span class="bdg bdg-pu">1차검토중</span></td><td>팀장 자동 알림</td><td>3 영업일</td></tr>
+      <tr><td><span class="bdg bdg-pu">3단계</span> 2차 검토</td><td>작성자 부서 그룹장</td><td><span class="bdg bdg-pu">2차검토중</span></td><td>그룹장 자동 알림</td><td>3 영업일</td></tr>
+      <tr><td><span class="bdg bdg-wn">4단계</span> 사내표준관리 검토</td><td>사내표준관리 담당자</td><td><span class="bdg bdg-wn">표준검토중</span></td><td>담당자 자동 알림</td><td>5 영업일</td></tr>
+      <tr><td><span class="bdg bdg-cy">5단계</span> 유관 그룹장 검토</td><td>관련 부서 그룹장</td><td><span class="bdg bdg-cy">유관검토중</span></td><td>그룹장 전원 자동 알림</td><td>5 영업일</td></tr>
+      <tr><td><span class="bdg bdg-ok">6단계</span> 최종 승인 · 배포</td><td>총괄 임원</td><td><span class="bdg bdg-ok">배포완료</span></td><td>전 직원 배포 알림</td><td>3 영업일</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- S3: 단계별 -->
+<div class="sec" id="s3">
+  <div class="sec-title"><div class="sec-num">3</div>단계별 상세 절차</div>
+
+  <!-- Step 1 -->
+  <div class="step-detail">
+    <div class="step-detail-hd" style="background:#eff6ff">
+      <div class="sn" style="background:#3b82f6">1</div>
+      <div><h3>문서 작성 — 각 부서 담당자</h3><p>DMS에서 문서 등록 후 사내 표준 템플릿에 맞게 작성</p></div>
+    </div>
+    <div class="step-detail-bd">
+      <div class="step-col">
+        <h4>수행 절차</h4>
+        <ul>
+          <li>DMS 로그인 → <b>문서 등록</b> 메뉴</li>
+          <li>문서 유형 선택 (절차서/지침서/서식/표준서)</li>
+          <li>문서번호 자동 채번 또는 수동 입력</li>
+          <li>제목, 소관부서, 정기검토일 입력</li>
+          <li>파일 첨부 (PDF/DOCX)</li>
+          <li><b>1차 검토 요청</b> 버튼 클릭</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>작성 기준</h4>
+        <ul>
+          <li>사내 표준 템플릿 양식 사용 필수</li>
+          <li>목적, 범위, 책임과 권한 명시</li>
+          <li>용어 정의 포함 (해당 시)</li>
+          <li>업무 흐름도 또는 절차 단계 기술</li>
+          <li>관련 문서 및 양식 번호 기재</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>주의사항</h4>
+        <ul>
+          <li>임시저장으로 초안 보관 가능</li>
+          <li>검토 요청 전 AI 사전 검토 권장</li>
+          <li>파일명 규칙: [문서번호]_[제목]_vX</li>
+          <li>개인정보 포함 내용 삽입 금지</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-detail">
+    <div class="step-detail-hd" style="background:#f5f3ff">
+      <div class="sn" style="background:#8b5cf6">2</div>
+      <div><h3>1차 검토 — 작성자 부서 팀장</h3><p>자동 알림 수신 후 내용 검토, 보완 요청 또는 2차 검토 승인</p></div>
+    </div>
+    <div class="step-detail-bd">
+      <div class="step-col">
+        <h4>수행 절차</h4>
+        <ul>
+          <li>알림 수신 → <b>결재함</b> 메뉴 접속</li>
+          <li>해당 문서 클릭 → 내용 검토</li>
+          <li>문서 열람 및 첨부파일 확인</li>
+          <li><b>승인</b> 또는 <b>보완 요청</b> 선택</li>
+          <li>보완 요청 시 사유 입력 필수</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>검토 항목</h4>
+        <ul>
+          <li>내용의 정확성 및 부서 업무 반영 여부</li>
+          <li>용어 통일성</li>
+          <li>양식 준수 여부</li>
+          <li>실제 업무 흐름과의 일치 여부</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>시스템 자동 처리</h4>
+        <ul>
+          <li>작성자 1차 검토 요청 시 팀장에게 즉시 알림</li>
+          <li>승인 시 자동으로 그룹장에게 2차 검토 요청 알림 발송</li>
+          <li>보완 요청 시 작성자에게 사유 알림 발송</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-detail">
+    <div class="step-detail-hd" style="background:#f5f3ff">
+      <div class="sn" style="background:#7c3aed">3</div>
+      <div><h3>2차 검토 — 작성자 부서 그룹장</h3><p>팀장 검토 완료 후 자동 알림, 부서 관점의 상위 검토 수행</p></div>
+    </div>
+    <div class="step-detail-bd">
+      <div class="step-col">
+        <h4>수행 절차</h4>
+        <ul>
+          <li>알림 수신 → <b>결재함</b> 메뉴 접속</li>
+          <li>팀장 검토 의견 함께 확인</li>
+          <li>문서 내용 및 방향성 검토</li>
+          <li><b>승인</b> 또는 <b>보완 요청</b> 선택</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>검토 항목</h4>
+        <ul>
+          <li>부서 전략 방향과의 일치 여부</li>
+          <li>타 부서와의 업무 연계 적합성</li>
+          <li>ISO 요건 충족 여부 (사전 확인)</li>
+          <li>책임과 권한의 적절성</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>시스템 자동 처리</h4>
+        <ul>
+          <li>승인 시 사내표준관리 담당자에게 자동 알림</li>
+          <li>보완 요청 시 작성자 및 팀장에게 알림 발송</li>
+          <li>검토 이력 자동 기록</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step-detail">
+    <div class="step-detail-hd" style="background:#fffbeb">
+      <div class="sn" style="background:#d97706">4</div>
+      <div><h3>사내표준관리 검토 — 사내표준관리 담당자 + AI 검토</h3><p>ISO 규정 적합성, 오타, 업무 흐름 일치 여부 등 종합 검토 (AI 보조)</p></div>
+    </div>
+    <div class="step-detail-bd">
+      <div class="step-col">
+        <h4>수행 절차</h4>
+        <ul>
+          <li>알림 수신 → <b>결재함</b> 메뉴 접속</li>
+          <li><b>AI 검토 실행</b> 버튼 클릭</li>
+          <li>AI 검토 결과 확인 (4개 항목)</li>
+          <li>AI 제안 내용 반영 여부 결정</li>
+          <li>최종 검토 의견 입력 후 승인</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>AI 자동 검출 항목</h4>
+        <ul>
+          <li>① 오타 및 잘못 기재된 내용</li>
+          <li>② 본문과 업무 흐름 불일치</li>
+          <li>③ ISO 9001 규정 미충족 항목</li>
+          <li>④ 책임/권한 부서 검토 사항</li>
+          <li>⑤ 각 항목별 모범 답안 제안</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>시스템 자동 처리</h4>
+        <ul>
+          <li>승인 시 유관 부서 그룹장 전원 알림</li>
+          <li>AI 검토 결과 문서 이력에 자동 저장</li>
+          <li>보완 요청 시 작성 부서 전 단계 알림</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step-detail">
+    <div class="step-detail-hd" style="background:#ecfeff">
+      <div class="sn" style="background:#0891b2">5</div>
+      <div><h3>유관 그룹장 검토 — 관련 부서 그룹장 (실시간 댓글)</h3><p>실시간 댓글 방식으로 의견 제시, 검토 확인 서명, 전원 완료 시 다음 단계 진행</p></div>
+    </div>
+    <div class="step-detail-bd">
+      <div class="step-col">
+        <h4>수행 절차</h4>
+        <ul>
+          <li>알림 수신 → <b>결재함</b> 메뉴 접속</li>
+          <li>문서 내용 열람</li>
+          <li>의견 있으면 <b>댓글 입력</b></li>
+          <li>검토 완료 시 <b>검토 확인</b> 버튼 클릭</li>
+          <li>전원 확인 완료 시 최종 승인 단계로 자동 이동</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>댓글 기능</h4>
+        <ul>
+          <li>실시간으로 다른 그룹장 댓글 확인 가능</li>
+          <li>댓글 작성자·시간 자동 기록</li>
+          <li>댓글에 답글(Thread) 가능</li>
+          <li>완료 여부 아이콘으로 시각 확인</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>시스템 자동 처리</h4>
+        <ul>
+          <li>미검토 그룹장 현황 실시간 표시</li>
+          <li>전원 검토 완료 시 임원 자동 알림</li>
+          <li>댓글 및 검토 이력 전체 보존</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="step-detail">
+    <div class="step-detail-hd" style="background:#f0fdf4">
+      <div class="sn" style="background:#059669">6</div>
+      <div><h3>최종 승인 및 배포 — 총괄 임원</h3><p>그룹웨어 연동 결재 상신, 최종 승인 후 전사 자동 배포</p></div>
+    </div>
+    <div class="step-detail-bd">
+      <div class="step-col">
+        <h4>수행 절차</h4>
+        <ul>
+          <li>그룹웨어 결재함에서 승인 또는 DMS에서 직접 처리</li>
+          <li>전체 검토 이력 및 댓글 확인</li>
+          <li>AI 검토 결과 최종 확인</li>
+          <li><b>최종 승인</b> 버튼 클릭</li>
+          <li>배포 대상 부서 선택 후 배포</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>배포 후 자동 처리</h4>
+        <ul>
+          <li>배포 대상 전 직원 알림 발송</li>
+          <li>열람 확인 현황 실시간 추적</li>
+          <li>구버전 자동 폐지 처리</li>
+          <li>문서 이력에 승인자 정보 기록</li>
+        </ul>
+      </div>
+      <div class="step-col">
+        <h4>그룹웨어 연동</h4>
+        <ul>
+          <li>결재 URL 그룹웨어로 자동 전송</li>
+          <li>그룹웨어에서 승인 시 DMS 자동 상태 변경</li>
+          <li>미연동 시 DMS 내 직접 결재 가능</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: 역할 -->
+<div class="sec" id="s4">
+  <div class="sec-title"><div class="sec-num">4</div>역할별 권한 및 책임</div>
+  <div class="role-card">
+    <div class="role-av" style="background:#dc2626">관</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700">관리자 (Admin) — Level 5</div>
+      <div style="font-size:12px;color:var(--tx2)">전체 메뉴 사용 · 사용자 관리 · 감사 로그 · 문서 삭제 · 워크플로우 관리</div>
+    </div>
+    <span class="bdg bdg-er">시스템 총괄</span>
+  </div>
+  <div class="role-card">
+    <div class="role-av" style="background:#7c3aed">승</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700">승인자 (Approver) — Level 4</div>
+      <div style="font-size:12px;color:var(--tx2)">최종 승인·반려 · 배포 처리 · AI 검토 실행 · 모든 문서 열람</div>
+    </div>
+    <span class="bdg bdg-pu">최종 결재</span>
+  </div>
+  <div class="role-card">
+    <div class="role-av" style="background:#0891b2">검</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700">검토자 (Reviewer) — Level 3</div>
+      <div style="font-size:12px;color:var(--tx2)">1·2차 검토 · 사내표준관리 검토 · 그룹장 검토 · 댓글 · 문서 등록</div>
+    </div>
+    <span class="bdg bdg-cy">중간 검토</span>
+  </div>
+  <div class="role-card">
+    <div class="role-av" style="background:#059669">작</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700">작성자 (Writer) — Level 2</div>
+      <div style="font-size:12px;color:var(--tx2)">문서 작성·등록 · 검토 요청 상신 · 본인 문서 개정 · AI 사전 검토</div>
+    </div>
+    <span class="bdg bdg-ok">문서 작성</span>
+  </div>
+  <div class="role-card">
+    <div class="role-av" style="background:#6b7280">열</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700">열람자 (Viewer) — Level 1</div>
+      <div style="font-size:12px;color:var(--tx2)">배포 완료 문서 열람 · 열람 확인 · 개정 이력 조회</div>
+    </div>
+    <span class="bdg" style="background:#f3f4f6;color:#374151">조회 전용</span>
+  </div>
+</div>
+
+<!-- S5: AI 검토 -->
+<div class="sec" id="s5">
+  <div class="sec-title"><div class="sec-num">5</div>AI 검토 기능 사용법</div>
+  <div class="callout callout-wn">
+    <b>⚡ AI 검토란?</b>
+    사내표준관리 검토 단계에서 Anthropic Claude AI가 문서를 자동 분석하여 오류·불일치·ISO 미충족 항목을 검출하고 수정 방안을 제안합니다.
+  </div>
+  <div class="cards">
+    <div class="card">
+      <h3>① 오타·잘못 기재 검출</h3>
+      <ul>
+        <li>맞춤법 오류 자동 감지</li>
+        <li>단위·수치 오기재 검출</li>
+        <li>용어 불통일 지적</li>
+        <li>수정 제안 텍스트 함께 표시</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>② 업무 흐름 불일치 검출</h3>
+      <ul>
+        <li>절차 순서의 논리적 오류</li>
+        <li>본문 설명과 흐름도 불일치</li>
+        <li>누락된 단계 또는 중복 단계</li>
+        <li>조건 분기 처리 누락</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>③ ISO 규정 적합성 검출</h3>
+      <ul>
+        <li>ISO 9001:2015 요건 체크</li>
+        <li>필수 항목(목적/범위/책임) 누락 감지</li>
+        <li>문서 번호 체계 규칙 확인</li>
+        <li>개정 이력 기재 방식 확인</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>④ 모범 답안 제안</h3>
+      <ul>
+        <li>각 지적 항목별 수정 예시 제공</li>
+        <li>ISO 준거 표현 방식 제안</li>
+        <li>유사 기존 문서 참조 제안</li>
+        <li>제안 채택·무시 선택 가능</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>⑤ 책임·권한 검토 정리</h3>
+      <ul>
+        <li>책임 부서 명확성 분석</li>
+        <li>권한 범위 적절성 검토</li>
+        <li>부서 간 업무 중복·공백 지적</li>
+        <li>RACI 매트릭스 자동 생성</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout callout-ok">
+    <b>💡 AI 검토 실행 방법</b>
+    결재함 → 해당 문서 선택 → 상단 <b>[AI 검토 실행]</b> 버튼 클릭 → 약 10~30초 분석 → 결과 패널에서 항목별 확인 및 의견 입력 후 승인 또는 보완 요청 처리
+  </div>
+</div>
+
+<!-- S6: 실시간 댓글 -->
+<div class="sec" id="s6">
+  <div class="sec-title"><div class="sec-num">6</div>실시간 그룹장 검토 (댓글 방식)</div>
+  <div class="callout callout-blue">
+    <b>💬 실시간 댓글 검토란?</b>
+    유관 그룹장 검토 단계에서 여러 그룹장이 동시에 문서를 보며 댓글로 의견을 남기고, 검토 완료 확인을 할 수 있는 협업 검토 방식입니다. 다른 그룹장의 댓글이 실시간으로 화면에 반영됩니다.
+  </div>
+  <table class="tbl">
+    <thead><tr><th>기능</th><th>설명</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>댓글 작성</td><td>검토 의견을 자유롭게 텍스트로 입력</td><td>작성자·시간 자동 기록</td></tr>
+      <tr><td>실시간 반영</td><td>다른 그룹장이 작성한 댓글이 페이지 새로고침 없이 즉시 표시</td><td>Supabase Realtime 연동</td></tr>
+      <tr><td>검토 완료 확인</td><td>"검토 완료" 버튼 클릭 시 본인 이름 옆에 ✅ 표시</td><td>취소 불가 (관리자만 가능)</td></tr>
+      <tr><td>미완료 현황</td><td>아직 검토 미완료인 그룹장 목록 실시간 표시</td><td>독촉 알림 발송 가능</td></tr>
+      <tr><td>전원 완료 처리</td><td>대상 그룹장 전원 검토 완료 시 자동으로 임원 결재 단계로 이동</td><td>자동 알림 발송</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- S7: 상태 코드 -->
+<div class="sec" id="s7">
+  <div class="sec-title"><div class="sec-num">7</div>문서 상태 코드 안내</div>
+  <table class="tbl">
+    <thead><tr><th>상태</th><th>의미</th><th>다음 단계</th><th>처리자</th></tr></thead>
+    <tbody>
+      <tr><td><span class="bdg bdg-blue">임시저장</span></td><td>작성 중인 초안</td><td>1차 검토 요청</td><td>작성자</td></tr>
+      <tr><td><span class="bdg bdg-pu">1차검토중</span></td><td>팀장 검토 진행 중</td><td>승인 → 2차검토중</td><td>팀장</td></tr>
+      <tr><td><span class="bdg bdg-pu">2차검토중</span></td><td>그룹장 검토 진행 중</td><td>승인 → 표준검토중</td><td>그룹장</td></tr>
+      <tr><td><span class="bdg bdg-wn">표준검토중</span></td><td>사내표준관리 + AI 검토 중</td><td>승인 → 유관검토중</td><td>표준관리 담당자</td></tr>
+      <tr><td><span class="bdg bdg-cy">유관검토중</span></td><td>유관 부서 그룹장 댓글 검토 중</td><td>전원완료 → 승인대기</td><td>유관 그룹장</td></tr>
+      <tr><td><span class="bdg bdg-wn">보완요청</span></td><td>검토자가 수정 요청</td><td>수정 후 재상신</td><td>작성자</td></tr>
+      <tr><td><span class="bdg" style="background:#fef9c3;color:#a16207">승인대기</span></td><td>임원 최종 결재 대기</td><td>승인 → 배포완료</td><td>총괄 임원</td></tr>
+      <tr><td><span class="bdg bdg-ok">배포완료</span></td><td>전사 배포 완료, 유효 문서</td><td>개정 신청</td><td>-</td></tr>
+      <tr><td><span class="bdg" style="background:#f3f4f6;color:#6b7280">폐지</span></td><td>구버전 또는 폐지 처리</td><td>-</td><td>관리자</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- S8: FAQ -->
+<div class="sec" id="s8">
+  <div class="sec-title"><div class="sec-num">8</div>FAQ / 자주 묻는 질문</div>
+  <div class="step-detail" style="margin-bottom:12px">
+    <div class="step-detail-hd"><div class="sn" style="background:#3b82f6">Q</div><div><h3>검토 단계에서 보완 요청을 받으면 어떻게 하나요?</h3></div></div>
+    <div style="padding:14px 20px;font-size:13px;color:var(--tx2)">알림을 통해 보완 요청 사유를 확인하고, 문서 목록에서 해당 문서를 열어 수정 후 다시 검토 요청하면 됩니다. 이전 단계부터 다시 시작됩니다.</div>
+  </div>
+  <div class="step-detail" style="margin-bottom:12px">
+    <div class="step-detail-hd"><div class="sn" style="background:#3b82f6">Q</div><div><h3>AI 검토 결과가 마음에 들지 않으면 무시해도 되나요?</h3></div></div>
+    <div style="padding:14px 20px;font-size:13px;color:var(--tx2)">AI 제안은 참고용입니다. 담당자 판단에 따라 채택 또는 무시를 선택할 수 있으며, 무시 사유를 간략히 입력하는 것을 권장합니다. 단, ISO 필수 항목 미충족은 반드시 수정 후 진행해야 합니다.</div>
+  </div>
+  <div class="step-detail" style="margin-bottom:12px">
+    <div class="step-detail-hd"><div class="sn" style="background:#3b82f6">Q</div><div><h3>그룹장 검토에서 한 명이 오랫동안 완료하지 않으면?</h3></div></div>
+    <div style="padding:14px 20px;font-size:13px;color:var(--tx2)">결재함에서 미완료 그룹장 목록을 확인하여 "독촉 알림" 버튼으로 알림을 재발송할 수 있습니다. 관리자는 부득이한 경우 대리 처리도 가능합니다.</div>
+  </div>
+  <div class="step-detail">
+    <div class="step-detail-hd"><div class="sn" style="background:#3b82f6">Q</div><div><h3>배포 완료된 문서를 개정하려면?</h3></div></div>
+    <div style="padding:14px 20px;font-size:13px;color:var(--tx2)">문서 상세 패널 하단 "개정 신청" 버튼을 클릭하고 개정 사유와 주요 변경 내용을 입력합니다. 개정 버전이 새로 생성되어 처음부터 검토 절차가 시작됩니다. 기존 배포본은 신규 버전 배포 완료 시 자동 폐지됩니다.</div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:32px 0;color:var(--tx3);font-size:12px;border-top:1px solid var(--bdr)">
+  TECHWING DMS 업무 흐름 매뉴얼 Rev.1.0 &nbsp;|&nbsp; 품질보증팀 &nbsp;|&nbsp; ISO 9001:2015
+</div>
+
+</div>
+</body>
+</html>
