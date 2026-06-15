@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TECHWING DMS</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6fb;--surf:#fff;--surf2:#f0f3f9;--bdr:#e3e7f0;--bdr2:#c8cedf;
+  --tx:#18192a;--tx2:#52597a;--tx3:#8e96b8;
+  --pri:#1e3a8a;--prih:#1d4ed8;--pril:#dbeafe;
+  --acc:#0ea5e9;
+  --ok:#059669;--ok-bg:#d1fae5;--ok-tx:#065f46;
+  --wn:#d97706;--wn-bg:#fef3c7;--wn-tx:#92400e;
+  --er:#dc2626;--er-bg:#fee2e2;--er-tx:#991b1b;
+  --in-bg:#dbeafe;--in-tx:#1e40af;
+  --pu-bg:#ede9fe;--pu-tx:#5b21b6;
+  --gy-bg:#f3f4f6;--gy-tx:#374151;
+  --r:8px;--rl:12px;--sh:0 1px 4px rgba(0,0,0,.07);--shl:0 8px 24px rgba(0,0,0,.10)
+}
+body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
+
+/* LOGIN */
+#pg-login{display:flex;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(145deg,#0f172a 0%,#1e3a8a 55%,#1d4ed8 100%)}
+.lbox{background:var(--surf);border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.32)}
+.llogo{text-align:center;margin-bottom:24px}
+.llogo img{height:38px;object-fit:contain}
+.ltitle{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px}
+.lsub{font-size:12px;color:var(--tx3);text-align:center;margin-bottom:28px}
+.lgroup{margin-bottom:16px}
+.llabel{font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:5px;display:block}
+.linput{width:100%;padding:11px 13px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:14px;color:var(--tx);outline:none;transition:.15s}
+.linput:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+.lbtn{width:100%;padding:12px;background:var(--pri);color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;margin-top:6px;letter-spacing:.02em}
+.lbtn:hover{background:var(--prih)}
+.lerr{background:var(--er-bg);color:var(--er-tx);border-radius:var(--r);padding:10px 13px;font-size:13px;margin-top:10px;display:none;border-left:3px solid var(--er)}
+.lhint{background:var(--in-bg);border-radius:var(--r);padding:12px 14px;margin-top:18px;font-size:12px;color:var(--in-tx)}
+.lhint b{display:block;margin-bottom:6px;font-size:13px}
+.lhint table{width:100%;border-collapse:collapse}
+.lhint td{padding:2px 4px;vertical-align:middle}
+.lhint td:last-child{text-align:right;opacity:.7}
+
+/* APP */
+#pg-app{display:none;height:100vh;overflow:hidden}
+#pg-app.on{display:flex}
+
+/* SIDEBAR */
+.sb{width:224px;background:var(--pri);display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.tw-logo{color:#fff;font-size:28px;font-weight:800;font-family:'Arial','Malgun Gothic',sans-serif;letter-spacing:.2px;line-height:1;margin-bottom:6px}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.70);margin-top:5px;letter-spacing:.02em;white-space:nowrap}
+.sb-logo-sub b{color:#fff;font-weight:800}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.sb-sec{font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.32);padding:10px 16px 3px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;color:rgba(255,255,255,.68);font-size:13px;font-weight:500;transition:.15s;border-left:3px solid transparent;user-select:none}
+.ni:hover{background:rgba(255,255,255,.08);color:#fff}
+.ni.on{background:rgba(255,255,255,.13);color:#fff;border-left-color:#60a5fa}
+.ni svg{width:15px;height:15px;flex-shrink:0}
+.nb{margin-left:auto;background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sb-user{padding:13px 16px;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px;cursor:pointer}
+.sb-user:hover{background:rgba(255,255,255,.05)}
+.uav{width:32px;height:32px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.uname{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.urole{font-size:11px;color:rgba(255,255,255,.48)}
+.uout{margin-left:auto;color:rgba(255,255,255,.38);cursor:pointer;padding:3px;border-radius:4px}
+.uout:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surf);border-bottom:1px solid var(--bdr);padding:0 22px;height:54px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.tbtitle{font-size:15px;font-weight:700;flex:1;color:var(--tx)}
+.srch{position:relative}
+.srch input{width:210px;padding:7px 10px 7px 31px;border:1px solid var(--bdr);border-radius:var(--r);font-size:13px;background:var(--bg);color:var(--tx);outline:none;transition:.15s;font-family:inherit}
+.srch input:focus{border-color:var(--acc);background:var(--surf)}
+.srch-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--tx3);pointer-events:none}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;transition:.15s;border:1px solid transparent;font-family:inherit}
+.bp{background:var(--pri);color:#fff;border-color:var(--pri)}.bp:hover{background:var(--prih)}
+.bs{background:var(--surf);color:var(--tx);border-color:var(--bdr)}.bs:hover{background:var(--surf2)}
+.bd{background:var(--er-bg);color:var(--er-tx);border-color:#fca5a5}
+.bk{background:var(--ok-bg);color:var(--ok-tx);border-color:#6ee7b7}
+.bsm{padding:4px 9px;font-size:12px}
+
+.page{flex:1;overflow-y:auto;padding:22px}
+
+/* CARDS */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);box-shadow:var(--sh)}
+.ch{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:13px;font-weight:700;color:var(--tx)}
+.cb{padding:18px}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:15px 18px;box-shadow:var(--sh)}
+.slb{font-size:11px;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sv{font-size:26px;font-weight:700;line-height:1}
+.ss{font-size:11px;color:var(--tx3);margin-top:3px}
+.sdot{width:7px;height:7px;border-radius:50%}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:9px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--bdr);vertical-align:middle;color:var(--tx)}
+tr:last-child td{border-bottom:none}
+.trow:hover td{background:var(--surf2);cursor:pointer}
+.trow.sel td{background:#eff6ff}
+.mono{font-family:monospace;font-size:12px;color:var(--tx3)}
+.fw{font-weight:600}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:100px;white-space:nowrap}
+.bd0{width:5px;height:5px;border-radius:50%;background:currentColor}
+.s-draft{background:var(--gy-bg);color:var(--gy-tx)}
+.s-review,.s-dept_review,.s-revision{background:var(--wn-bg);color:var(--wn-tx)}
+.s-pending{background:var(--in-bg);color:var(--in-tx)}
+.s-approved{background:var(--ok-bg);color:var(--ok-tx)}
+.s-distributed{background:var(--pu-bg);color:var(--pu-tx)}
+.s-obsolete{background:var(--er-bg);color:var(--er-tx)}
+.t-proc{background:var(--in-bg);color:var(--in-tx)}
+.t-guide{background:var(--pu-bg);color:var(--pu-tx)}
+.t-form{background:var(--wn-bg);color:var(--wn-tx)}
+.t-std{background:var(--ok-bg);color:var(--ok-tx)}
+.r-admin{background:#fdf4ff;color:#86198f}
+.r-approver{background:var(--ok-bg);color:var(--ok-tx)}
+.r-reviewer{background:var(--in-bg);color:var(--in-tx)}
+.r-writer{background:var(--wn-bg);color:var(--wn-tx)}
+.r-viewer{background:var(--gy-bg);color:var(--gy-tx)}
+.st-active{background:var(--ok-bg);color:var(--ok-tx)}
+.st-pending{background:var(--wn-bg);color:var(--wn-tx)}
+.st-inactive{background:var(--er-bg);color:var(--er-tx)}
+
+/* FILTERS */
+.fbar{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
+.chip{padding:4px 11px;border-radius:100px;font-size:12px;font-weight:600;border:1px solid var(--bdr);background:var(--surf);color:var(--tx2);cursor:pointer;transition:.15s}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.chip:hover:not(.on){border-color:var(--bdr2);background:var(--surf2)}
+
+/* DETAIL PANEL */
+.dp{background:var(--surf);border-left:1px solid var(--bdr);width:356px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden}
+.dph{padding:14px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.dpb{flex:1;overflow-y:auto;padding:15px 16px}
+.dpf{padding:11px 16px;border-top:1px solid var(--bdr);display:flex;gap:6px;flex-wrap:wrap}
+.xbtn{background:none;border:none;cursor:pointer;color:var(--tx3);padding:2px;border-radius:4px;display:flex}
+.xbtn:hover{color:var(--tx);background:var(--surf2)}
+.ir{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bdr)}
+.ir:last-child{border-bottom:none}
+.irl{font-size:11px;color:var(--tx3)}
+.irv{font-size:13px;font-weight:500}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--bdr);padding:0 16px}
+.tab{padding:9px 11px;font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
+.tab.on{color:var(--pri);border-bottom-color:var(--pri)}
+
+/* LIST LAYOUT */
+.ll{display:flex;flex:1;overflow:hidden}
+.lm{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* WORKFLOW */
+.wf{display:flex;align-items:flex-start;margin:14px 0}
+.wfs{flex:1;text-align:center;position:relative}
+.wfs::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:2px;background:var(--bdr);z-index:0}
+.wfs:last-child::after{display:none}
+.wfc{width:26px;height:26px;border-radius:50%;background:var(--surf2);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;position:relative;z-index:1;font-size:10px;font-weight:700;color:var(--tx2)}
+.wfc.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.wfc.cur{background:var(--acc);border-color:var(--acc);color:#fff}
+.wfl{font-size:10px;color:var(--tx3);font-weight:500}
+
+/* FORM */
+.fg{margin-bottom:14px}
+.fl{font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:4px;display:block}
+.fl span{color:var(--er)}
+.fc{width:100%;padding:8px 11px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;color:var(--tx);background:var(--surf);outline:none;transition:.15s;font-family:inherit}
+.fc:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+select.fc{cursor:pointer}
+textarea.fc{resize:vertical;min-height:70px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* PROGRESS */
+.pgbar{height:5px;background:var(--surf2);border-radius:3px;overflow:hidden}
+.pgfill{height:100%;border-radius:3px;background:var(--ok);transition:width .4s}
+.pgfill.w{background:var(--wn)}
+
+/* HISTORY */
+.hi{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.hi:last-child{border-bottom:none}
+.hd{width:7px;height:7px;border-radius:50%;background:var(--acc);margin-top:5px;flex-shrink:0}
+.hv{font-size:12px;font-weight:700}
+.hm{font-size:11px;color:var(--tx3)}
+.hr{font-size:12px;color:var(--tx2);margin-top:2px}
+
+/* UPLOAD ZONE */
+.uz{border:2px dashed var(--bdr2);border-radius:var(--rl);padding:22px;text-align:center;color:var(--tx3);cursor:pointer;transition:.15s}
+.uz:hover{border-color:var(--acc);color:var(--acc);background:var(--in-bg)}
+
+
+/* ELECTRONIC DOCUMENT */
+.reg-mode{display:flex;gap:8px;margin-bottom:14px}
+.reg-mode button{flex:1;justify-content:center;padding:12px}
+.reg-mode button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.edoc-sheet{background:#fff;width:794px;max-width:100%;min-height:1123px;margin:0 auto;border:1px solid #d1d5db;box-shadow:0 8px 22px rgba(0,0,0,.12);padding:26px;color:#111;font-family:'Malgun Gothic',sans-serif}
+.edoc-title{font-size:22px;font-weight:800;text-align:center;margin:10px 0 18px}
+.edoc-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.edoc-table th,.edoc-table td{border:1px solid #111;padding:7px 8px;font-size:12px;color:#111;vertical-align:middle}
+.edoc-table th{background:#f3f4f6;text-align:center;font-weight:700;text-transform:none;letter-spacing:0}
+.edoc-sec{font-size:15px;font-weight:800;margin:18px 0 8px;border-bottom:2px solid #111;padding-bottom:4px}
+.edoc-body{white-space:pre-wrap;line-height:1.62;font-size:13px;min-height:70px}
+.edoc-cover-grid{display:grid;grid-template-columns:1fr 220px;gap:12px;align-items:start}
+.edoc-sign td{height:42px;text-align:center}
+.edoc-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px}
+.file-preview{width:100%;height:70vh;border:1px solid var(--bdr);border-radius:var(--r);background:#fff}
+@media print{body.print-edoc *{visibility:hidden!important}body.print-edoc #printArea,body.print-edoc #printArea *{visibility:visible!important}body.print-edoc #printArea{position:absolute;left:0;top:0;width:100%}.edoc-actions{display:none!important}.edoc-sheet{box-shadow:none;border:none;width:100%;min-height:auto;margin:0;padding:16mm}}
+
+
+
+/* PERMISSION MATRIX */
+.perm-wrap{margin-top:14px}
+.perm-table th{background:#f8fafc;text-align:center;text-transform:none;letter-spacing:0;color:var(--tx2)}
+.perm-table td{text-align:center;font-size:12px}
+.perm-table td:nth-child(1),.perm-table td:nth-child(2){font-weight:700;background:#fafafa}
+.perm-ok{display:inline-flex;align-items:center;justify-content:center;min-width:42px;padding:3px 8px;border-radius:999px;background:var(--ok-bg);color:var(--ok-tx);font-size:11px;font-weight:800}
+.perm-no{display:inline-flex;align-items:center;justify-content:center;min-width:52px;padding:3px 8px;border-radius:999px;background:var(--er-bg);color:var(--er-tx);font-size:11px;font-weight:800}
+.level-chip{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--pri);color:#fff;font-weight:900;font-size:13px}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+.mo.on{display:flex}
+.mbox{background:var(--surf);border-radius:var(--rl);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shl)}
+.mh{padding:18px 22px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:15px;font-weight:700}
+.mb{padding:18px 22px;overflow-y:auto;flex:1}
+.mf{padding:14px 22px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px}
+
+/* TOAST */
+.tc{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:7px}
+.toast{color:#fff;padding:11px 15px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--shl);display:flex;align-items:center;gap:8px;min-width:210px;animation:tin .2s ease}
+.tok{background:#065f46}.terr{background:#991b1b}.tinf{background:#1e40af}
+@keyframes tin{from{transform:translateX(14px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* MISC */
+.tag{display:inline-block;font-size:11px;background:var(--surf2);color:var(--tx2);border-radius:4px;padding:1px 7px;margin:2px 1px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ph{margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between}
+.ph h1{font-size:20px;font-weight:700}
+.ph p{font-size:13px;color:var(--tx2);margin-top:2px}
+.div{height:1px;background:var(--bdr);margin:14px 0}
+.empty{text-align:center;padding:40px;color:var(--tx3)}
+.empty p{font-size:14px;font-weight:600;color:var(--tx2);margin-bottom:4px}
+.sec{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--tx)}
+.notif-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r);color:var(--tx2);position:relative}
+.notif-btn:hover{background:var(--surf2)}
+.ndot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid var(--surf);display:none}
+.npanel{position:fixed;top:55px;right:14px;width:300px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);box-shadow:var(--shl);z-index:90;display:none;max-height:400px;overflow-y:auto}
+.npanel.on{display:block}
+.nitem{padding:10px 14px;border-bottom:1px solid var(--bdr);cursor:pointer}
+.nitem:hover{background:var(--surf2)}
+.nitem:last-child{border-bottom:none}
+.ntitle{font-size:13px;font-weight:600}
+.nmsg{font-size:12px;color:var(--tx3);margin-top:2px}
+.pwbar{height:4px;border-radius:2px;margin-top:4px;transition:.3s;background:var(--bdr)}
+</style>
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="pg-login">
+  <div class="lbox">
+    <div class="llogo"><img src="data:image/jpeg;base64,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" alt="TechWing"></div>
+    <div class="ltitle">문서 관리 시스템</div>
+    <div class="lsub">전사 ISO 표준 문서 관리 플랫폼</div>
+    <div class="lgroup">
+      <label class="llabel">아이디</label>
+      <input class="linput" id="lid" type="text" placeholder="아이디를 입력하세요" autocomplete="username">
+    </div>
+    <div class="lgroup">
+      <label class="llabel">비밀번호</label>
+      <input class="linput" id="lpw" type="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+    </div>
+    <button class="lbtn" id="lbtn" onclick="doLogin()">로그인</button>
+    <button class="btn bs" style="width:100%;justify-content:center;margin-top:8px" onclick="showSignupMo()">회원가입 신청</button>
+    <div class="lerr" id="lerr"></div>
+    <div class="lhint">
+      <b>테스트 계정</b>
+      <table>
+        <tr><td>admin / admin1234</td><td>관리자</td></tr>
+        <tr><td>approver / approve123</td><td>승인자</td></tr>
+        <tr><td>reviewer / review123</td><td>검토자</td></tr>
+        <tr><td>writer1 / writer123</td><td>작성자</td></tr>
+        <tr><td>viewer1 / viewer123</td><td>열람자</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="pg-app">
+  <aside class="sb">
+    <div class="sb-logo">
+      <div class="tw-logo">TechWing</div>
+      <div class="sb-logo-sub"><b>DMS</b> | Document Management System</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sec">메인</div>
+      <div class="ni on" data-pg="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>대시보드</div>
+      <div class="ni" data-pg="documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>문서 목록</div>
+      <div class="sb-sec">결재 · 배포</div>
+      <div class="ni" data-pg="approval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>결재함<span class="nb" id="appr-n">0</span></div>
+      <div class="ni" data-pg="distribution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>배포 관리</div>
+      <div class="sb-sec">문서 관리</div>
+      <div class="ni" data-pg="register"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>문서 등록</div>
+      <div class="ni" data-pg="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="15" y2="14"/></svg>개정 이력</div>
+      <div class="sb-sec sb-adm" style="display:none">관리자</div>
+      <div class="ni sb-adm" data-pg="users" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>사용자 관리</div>
+      <div class="ni sb-adm" data-pg="audit" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>감사 로그</div>
+    </nav>
+    <div class="sb-user" onclick="showProfile()">
+      <div class="uav" id="u-av">?</div>
+      <div style="flex:1;min-width:0">
+        <div class="uname" id="u-name">-</div>
+        <div class="urole" id="u-role">-</div>
+      </div>
+      <div class="uout" onclick="event.stopPropagation();doLogout()" title="로그아웃">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tbtitle" id="pg-title">대시보드</div>
+      <div class="srch">
+        <svg class="srch-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="문서번호·문서명 검색..." id="srch-inp" oninput="onSearch(this.value)">
+      </div>
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotif()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="ndot" id="ndot"></span>
+      </button>
+      <button class="btn bp bsm" onclick="goto('register')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>새 문서 등록
+      </button>
+    </div>
+    <div id="pc" style="display:flex;flex:1;overflow:hidden;"></div>
+  </div>
+</div>
+
+<!-- Notification Panel -->
+<div class="npanel" id="npanel">
+  <div style="padding:11px 14px;border-bottom:1px solid var(--bdr);font-size:13px;font-weight:700;">알림</div>
+  <div id="nlist"></div>
+</div>
+
+<!-- Modal -->
+<div class="mo" id="mo" onclick="if(event.target===this)closeMo()">
+  <div class="mbox">
+    <div class="mh"><div class="mt" id="mo-title"></div><button class="xbtn" onclick="closeMo()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb" id="mo-body"></div>
+    <div class="mf" id="mo-foot"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="tc" id="tc"></div>
+
+<script>
+
+// ══════════════════════════════════════════════════════════════════
+//  TECHWING DMS — Supabase 실시간 멀티유저 버전
+//  ① 이 파일의 SUPABASE_URL / SUPABASE_ANON_KEY 를 본인 프로젝트 값으로 교체
+//  ② Supabase 대시보드 > SQL Editor 에서 하단 SCHEMA SQL 을 실행
+// ══════════════════════════════════════════════════════════════════
+
+// ────────────────────────────────────────
+//  ★ 설정값 — 반드시 변경하세요 ★
+// ────────────────────────────────────────
+const SUPABASE_URL      = 'https://nwgqqafxivfqugooozsb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53Z3FxYWZ4aXZmcXVnb29venNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0OTMzNTgsImV4cCI6MjA5NzA2OTM1OH0.oueoowz8ZJqAl-XBNe_BzDvzdDJ17s8aPokP5s18wPE';
+
+// ────────────────────────────────────────
+//  Supabase 클라이언트 초기화
+// ────────────────────────────────────────
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ────────────────────────────────────────
+//  상태
+// ────────────────────────────────────────
+let CU = null;          // 현재 로그인 사용자
+let curPg = 'dashboard';
+let srchQ = '', filt = 'all';
+let selDocId = null, curTab = 'info';
+let notifOpen = false;
+let apprFilt  = 'pending';
+let _realtimeCh = null; // realtime channel
+
+// ────────────────────────────────────────
+//  유틸
+// ────────────────────────────────────────
+const today = () => new Date().toISOString().slice(0,10);
+const nowStr = () => new Date().toLocaleString('ko-KR',{hour12:false}).slice(0,16);
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+const ROLE_LABELS = {admin:'관리자',approver:'승인자',reviewer:'검토자',writer:'작성자',viewer:'열람자'};
+const ROLE_LEVELS = {admin:'M',approver:'D',reviewer:'C',writer:'B',viewer:'A'};
+const ROLE_PERMS  = {
+  admin:    ['dashboard','documents','approval','distribution','register','history','users','audit'],
+  approver: ['dashboard','documents','approval','distribution','register','history'],
+  reviewer: ['dashboard','documents','approval','register','history'],
+  writer:   ['dashboard','documents','register','history'],
+  viewer:   ['dashboard','documents','history']
+};
+function hasPerm(pg){ return (ROLE_PERMS[CU?.role]||[]).includes(pg); }
+
+function sbadge(s){
+  const m={draft:['s-draft','임시저장'],review:['s-review','검토요청'],dept_review:['s-dept_review','유관부서검토'],revision:['s-revision','보완요청'],pending:['s-pending','승인대기'],approved:['s-approved','승인완료'],distributed:['s-distributed','배포완료'],obsolete:['s-obsolete','폐지']};
+  const [c,l]=m[s]||['s-draft',s]; return `<span class="badge ${c}"><span class="bd0"></span>${l}</span>`;
+}
+function tbadge(t){
+  const m={proc:['t-proc','절차서'],guide:['t-guide','지침서'],form:['t-form','서식'],std:['t-std','표준서']};
+  const [c,l]=m[t]||['s-draft',t]; return `<span class="badge ${c}">${l}</span>`;
+}
+function rbadge(r){
+  const m={admin:['r-admin','관리자'],approver:['r-approver','승인자'],reviewer:['r-reviewer','검토자'],writer:['r-writer','작성자'],viewer:['r-viewer','열람자']};
+  const [c,l]=m[r]||['r-viewer',r]; return `<span class="badge ${c}">${l}</span>`;
+}
+function statusBadge(s){
+  const m={active:['st-active','활성'],inactive:['st-inactive','비활성'],pending:['s-pending','승인대기']};
+  const [c,l]=m[s]||['s-draft',s]; return `<span class="badge ${c}">${l}</span>`;
+}
+function nearReview(d){ if(!d) return false; const diff=(new Date(d)-new Date())/86400000; return diff>=0&&diff<=90; }
+
+function loading(msg='불러오는 중...'){
+  document.getElementById('pc').innerHTML=`<div class="page"><div style="display:flex;align-items:center;gap:10px;padding:40px;color:var(--tx3)"><div class="spinner"></div>${msg}</div></div>`;
+}
+function toast(msg,cls='tinf'){
+  const c=document.getElementById('tc');
+  const ic={tok:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>',terr:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',tinf:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'};
+  const t=document.createElement('div'); t.className=`toast ${cls}`;
+  t.innerHTML=`${ic[cls]||''} ${msg}`; c.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+function openMo(title,body,foot){
+  document.getElementById('mo-title').textContent=title;
+  document.getElementById('mo-body').innerHTML=body;
+  document.getElementById('mo-foot').innerHTML=foot;
+  document.getElementById('mo').classList.add('on');
+}
+function closeMo(){ document.getElementById('mo').classList.remove('on'); }
+
+const DEPTS=['품질보증팀','생산팀','개발팀','구매팀','영업팀','경영지원팀','연구개발팀'];
+const ROLES=[['admin','관리자'],['approver','승인자'],['reviewer','검토자'],['writer','작성자'],['viewer','열람자']];
+function dOpts(sel=''){ return DEPTS.map(d=>`<option value="${d}"${d===sel?' selected':''}>${d}</option>`).join(''); }
+function rOpts(sel=''){ return ROLES.map(([v,l])=>`<option value="${v}"${v===sel?' selected':''}>${l}</option>`).join(''); }
+
+// ────────────────────────────────────────
+//  DB 헬퍼 (Supabase REST)
+// ────────────────────────────────────────
+async function dbGet(table, query={}){
+  let q = sb.from(table).select(query.select||'*');
+  if(query.eq)   Object.entries(query.eq).forEach(([k,v])=>{ q=q.eq(k,v); });
+  if(query.neq)  Object.entries(query.neq).forEach(([k,v])=>{ q=q.neq(k,v); });
+  if(query.in)   Object.entries(query.in).forEach(([k,v])=>{ q=q.in(k,v); });
+  if(query.order) q=q.order(query.order.col,{ascending:query.order.asc??false});
+  if(query.limit) q=q.limit(query.limit);
+  const {data,error}=await q;
+  if(error) throw error;
+  return data||[];
+}
+async function dbInsert(table,row){
+  const {data,error}=await sb.from(table).insert(row).select().single();
+  if(error) throw error; return data;
+}
+async function dbUpdate(table,id,patch){
+  const {error}=await sb.from(table).update(patch).eq('id',id);
+  if(error) throw error;
+}
+async function dbDelete(table,id){
+  const {error}=await sb.from(table).delete().eq('id',id);
+  if(error) throw error;
+}
+async function dbUpsert(table,row,conflict='id'){
+  const {data,error}=await sb.from(table).upsert(row,{onConflict:conflict}).select().single();
+  if(error) throw error; return data;
+}
+
+async function addNotif(userId,title,msg,type='info'){
+  try { await dbInsert('notifications',{user_id:userId,title,message:msg,type,is_read:false}); }
+  catch(e){ console.warn('notif err',e); }
+  if(userId===CU?.id) document.getElementById('ndot').style.display='block';
+}
+async function addAudit(action,target='',detail=''){
+  try { await dbInsert('audit_log',{user_id:CU?.id,action,target,detail,ip:'browser'}); }
+  catch(e){ console.warn('audit err',e); }
+}
+async function pendingCount(){
+  const {count}=await sb.from('approvals').select('*',{count:'exact',head:true}).eq('status','pending');
+  return count||0;
+}
+async function refreshBadge(){
+  const n=await pendingCount();
+  document.getElementById('appr-n').textContent=n;
+}
+
+// ────────────────────────────────────────
+//  실시간 구독 (Realtime)
+// ────────────────────────────────────────
+function subscribeRealtime(){
+  if(_realtimeCh) sb.removeChannel(_realtimeCh);
+  _realtimeCh = sb.channel('dms-changes')
+    .on('postgres_changes',{event:'*',schema:'public',table:'documents'},()=>{ if(curPg==='documents') renderDocs(); if(curPg==='dashboard') renderDash(); })
+    .on('postgres_changes',{event:'*',schema:'public',table:'approvals'},()=>{ refreshBadge(); if(curPg==='approval') renderApproval(); })
+    .on('postgres_changes',{event:'*',schema:'public',table:'distributions'},()=>{ if(curPg==='distribution') renderDist(); })
+    .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:`user_id=eq.${CU.id}`},()=>{ document.getElementById('ndot').style.display='block'; })
+    .subscribe();
+}
+
+// ────────────────────────────────────────
+//  로그인
+// ────────────────────────────────────────
+async function doLogin(){
+  const username=document.getElementById('lid').value.trim();
+  const pw=document.getElementById('lpw').value;
+  const err=document.getElementById('lerr'); err.style.display='none';
+  if(!username||!pw){ err.textContent='아이디와 비밀번호를 입력하세요.'; err.style.display='block'; return; }
+  const btn=document.getElementById('lbtn'); btn.disabled=true; btn.textContent='로그인 중...';
+  try{
+    const users=await dbGet('users',{eq:{username,status:'active'}});
+    const found=users.find(u=>u.password_hash===pw||u.pw===pw); // plain or hashed
+    if(!found){ err.textContent='아이디 또는 비밀번호가 올바르지 않습니다.'; err.style.display='block'; return; }
+    CU=found; CU.lastLogin=nowStr();
+    await dbUpdate('users',CU.id,{last_login:new Date().toISOString()});
+    addAudit('LOGIN','auth',`${CU.name} 로그인`);
+    sessionStorage.setItem('dms_cu',JSON.stringify(CU));
+    startApp();
+  }catch(e){
+    err.textContent=`연결 오류: ${e.message}`; err.style.display='block';
+  }finally{ btn.disabled=false; btn.textContent='로그인'; }
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!document.getElementById('pg-login').classList.contains('hidden')) doLogin(); });
+
+function doLogout(){
+  addAudit('LOGOUT');
+  if(_realtimeCh) sb.removeChannel(_realtimeCh);
+  CU=null; sessionStorage.removeItem('dms_cu');
+  document.getElementById('pg-login').style.display='flex';
+  document.getElementById('pg-app').classList.remove('on');
+  document.getElementById('lid').value=''; document.getElementById('lpw').value='';
+  document.getElementById('lerr').style.display='none';
+}
+
+function startApp(){
+  document.getElementById('pg-login').style.display='none';
+  document.getElementById('pg-app').classList.add('on');
+  document.getElementById('u-av').textContent=CU.name[0];
+  document.getElementById('u-name').textContent=CU.name;
+  document.getElementById('u-role').textContent=`${CU.dept} · ${ROLE_LEVELS[CU.role]||'-'} Level · ${ROLE_LABELS[CU.role]||CU.role}`;
+  applyMenuPermissions();
+  document.querySelectorAll('.ni[data-pg]').forEach(el=>{ el.onclick=()=>goto(el.dataset.pg); });
+  refreshBadge();
+  subscribeRealtime();
+  // unread notif badge
+  sb.from('notifications').select('*',{count:'exact',head:true}).eq('user_id',CU.id).eq('is_read',false)
+    .then(({count})=>{ if(count>0) document.getElementById('ndot').style.display='block'; });
+  goto('dashboard');
+}
+
+// ────────────────────────────────────────
+//  네비게이션
+// ────────────────────────────────────────
+const pgTitles={dashboard:'대시보드',documents:'문서 목록',approval:'결재함',distribution:'배포 관리',register:'문서 등록',history:'개정 이력',users:'사용자 관리',audit:'감사 로그'};
+
+function applyMenuPermissions(){
+  document.querySelectorAll('.ni[data-pg]').forEach(el=>{
+    el.style.display=hasPerm(el.dataset.pg)?'':'none';
+  });
+  document.querySelectorAll('.sb-adm').forEach(el=>{ el.style.display=CU?.role==='admin'?'':'none'; });
+}
+
+function goto(pg){
+  if(!hasPerm(pg)){ document.getElementById('pc').innerHTML='<div class="page"><div class="card"><div class="empty"><p>해당 메뉴 사용 권한이 없습니다.</p></div></div></div>'; return; }
+  curPg=pg; selDocId=null; filt='all'; srchQ='';
+  document.getElementById('srch-inp').value='';
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('on'));
+  const ni=document.querySelector(`.ni[data-pg="${pg}"]`); if(ni) ni.classList.add('on');
+  document.getElementById('pg-title').textContent=pgTitles[pg]||pg;
+  const renders={dashboard:renderDash,documents:renderDocs,approval:renderApproval,distribution:renderDist,register:renderRegister,history:renderHistory,users:renderUsers,audit:renderAudit};
+  if(renders[pg]) renders[pg]();
+}
+function onSearch(v){ srchQ=v; if(curPg==='documents') renderDocs(); }
+
+// ────────────────────────────────────────
+//  대시보드
+// ────────────────────────────────────────
+async function renderDash(){
+  loading();
+  try{
+    const [docs,approvals]=await Promise.all([
+      dbGet('documents',{order:{col:'updated_at',asc:false}}),
+      dbGet('approvals',{eq:{status:'pending'},order:{col:'created_at',asc:false}})
+    ]);
+    const users=await dbGet('users');
+    const userMap=Object.fromEntries(users.map(u=>[u.id,u]));
+    const total=docs.length;
+    const distrib=docs.filter(d=>d.status==='distributed').length;
+    const pend=approvals.length;
+    const nr=docs.filter(d=>nearReview(d.review_date)&&d.status==='distributed').length;
+    const recent=docs.slice(0,5);
+    const byType=['proc','guide','form','std'].map(t=>({t,c:docs.filter(d=>d.doc_type===t).length}));
+
+    document.getElementById('pc').innerHTML=`
+    <div class="page">
+      <div class="ph"><div><h1>대시보드</h1><p>전사 문서 현황 · ISO 9001:2015 · <span style="color:var(--ok);font-size:12px">● 실시간 동기화 중</span></p></div></div>
+      <div class="sg">
+        <div class="sc"><div class="slb"><span class="sdot" style="background:#3b82f6"></span>전체 문서</div><div class="sv">${total}</div><div class="ss">전사 등록 문서</div></div>
+        <div class="sc"><div class="slb"><span class="sdot" style="background:#7c3aed"></span>배포 완료</div><div class="sv" style="color:var(--pu-tx)">${distrib}</div><div class="ss">운영 중인 문서</div></div>
+        <div class="sc"><div class="slb"><span class="sdot" style="background:#f59e0b"></span>결재 대기</div><div class="sv" style="color:var(--wn)">${pend}</div><div class="ss">검토·승인 진행 중</div></div>
+        <div class="sc"><div class="slb"><span class="sdot" style="background:#ef4444"></span>정기검토 예정</div><div class="sv" style="color:var(--er)">${nr}</div><div class="ss">90일 이내 도래</div></div>
+      </div>
+      <div class="g2" style="margin-bottom:18px">
+        <div class="card">
+          <div class="ch"><div class="ct">최근 문서 활동</div><button class="btn bs bsm" onclick="goto('documents')">전체 보기</button></div>
+          <div>${recent.map(d=>`
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 16px;border-bottom:1px solid var(--bdr);cursor:pointer" onclick="goto('documents')">
+              <div style="width:28px;height:28px;border-radius:var(--r);background:var(--surf2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              </div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(d.title)}</div><div style="font-size:11px;color:var(--tx3);margin-top:1px">${esc(d.doc_no)} · ${esc(d.dept)} · ${esc(d.version)}</div></div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${sbadge(d.status)}<span style="font-size:11px;color:var(--tx3)">${(d.updated_at||'').slice(0,10)}</span></div>
+            </div>`).join('')}</div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">결재 대기 문서</div><button class="btn bs bsm" onclick="goto('approval')">결재함 이동</button></div>
+          <div>${approvals.length===0?'<div class="empty"><p>대기 중인 결재 없음</p></div>':approvals.slice(0,4).map(a=>{
+            const d=docs.find(x=>x.id===a.doc_id); const req=userMap[a.requester_id];
+            return `<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--bdr)">
+              <div style="width:28px;height:28px;border-radius:var(--r);background:var(--wn-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--wn)" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+              </div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(d?.title||'-')}</div><div style="font-size:11px;color:var(--tx3)">${esc(d?.doc_no)} · ${esc(req?.name||'-')} (${esc(req?.dept||'-')})</div></div>
+              ${(CU.role==='admin'||CU.role==='approver')?`<div style="display:flex;gap:5px"><button class="btn bk bsm" onclick="quickApprove(${a.id})">승인</button><button class="btn bd bsm" onclick="showRejectMo(${a.id})">반려</button></div>`:''}
+            </div>`;}).join('')}</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">문서 유형별 현황</div></div>
+        <div class="cb"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          ${byType.map(({t,c})=>`<div style="text-align:center;padding:14px;background:var(--surf2);border-radius:var(--rl)"><div style="font-size:24px;font-weight:700;margin-bottom:6px">${c}</div>${tbadge(t)}</div>`).join('')}
+        </div></div>
+      </div>
+    </div>`;
+  }catch(e){ document.getElementById('pc').innerHTML=`<div class="page"><div style="color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+async function quickApprove(apprId){
+  try{
+    const a=await dbGet('approvals',{eq:{id:apprId}}); if(!a[0]) return;
+    const doc=await dbGet('documents',{eq:{id:a[0].doc_id}}); if(!doc[0]) return;
+    await dbUpdate('approvals',apprId,{status:'approved',approver_id:CU.id,decided_at:new Date().toISOString()});
+    await dbUpdate('documents',a[0].doc_id,{status:'approved',updated_at:new Date().toISOString()});
+    await addNotif(a[0].requester_id,`승인 완료: ${doc[0].title}`,`${doc[0].doc_no} 문서가 승인되었습니다.`,'success');
+    await addAudit('APPROVE',doc[0].doc_no,doc[0].title);
+    refreshBadge(); toast('승인되었습니다.','tok'); renderDash();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+// ────────────────────────────────────────
+//  문서 목록
+// ────────────────────────────────────────
+let _allDocs=[], _allUsers=[];
+
+async function renderDocs(){
+  loading();
+  try{
+    _allUsers=await dbGet('users');
+    const userMap=Object.fromEntries(_allUsers.map(u=>[u.id,u]));
+    let q=sb.from('documents').select('*').order('updated_at',{ascending:false});
+    if(srchQ){ q=q.or(`title.ilike.%${srchQ}%,doc_no.ilike.%${srchQ}%,dept.ilike.%${srchQ}%`); }
+    if(filt!=='all'){
+      if(['proc','guide','form','std'].includes(filt)) q=q.eq('doc_type',filt);
+      else if(filt==='review') q=q.in('status',['review','dept_review','revision']);
+      else q=q.eq('status',filt);
+    }
+    const {data:docs}=await q; _allDocs=docs||[];
+    renderDocList(userMap);
+    if(selDocId) renderDP(selDocId,userMap);
+  }catch(e){ document.getElementById('pc').innerHTML=`<div class="page"><div style="color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+function renderDocList(userMap){
+  const docs=_allDocs;
+  document.getElementById('pc').innerHTML=`
+  <div class="ll">
+    <div class="lm">
+      <div class="fbar">
+        ${[['all','전체'],['proc','절차서'],['guide','지침서'],['form','서식'],['std','표준서'],['distributed','배포완료'],['pending','승인대기'],['draft','임시저장'],['review','검토중']].map(([k,v])=>
+          `<span class="chip${filt===k?' on':''}" onclick="setFilt('${k}')">${v}</span>`).join('')}
+        <span style="margin-left:auto;font-size:12px;color:var(--tx3)">총 ${docs.length}건</span>
+      </div>
+      <div class="tw" style="flex:1;overflow-y:auto">
+        <table><thead><tr><th>문서번호</th><th>문서명</th><th>유형</th><th>버전</th><th>소관부서</th><th>담당자</th><th>상태</th><th>최종수정</th><th>검토일</th></tr></thead>
+        <tbody>
+          ${docs.length===0?'<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--tx3)">문서가 없습니다</td></tr>':
+          docs.map(d=>`
+            <tr class="trow${selDocId===d.id?' sel':''}" onclick="openDocDetail(${d.id})">
+              <td><span class="mono">${esc(d.doc_no)}</span></td>
+              <td><span class="fw">${esc(d.title)}</span>${d.file_name?'<span style="color:var(--ok);margin-left:4px;font-size:11px">📎</span>':''}</td>
+              <td>${tbadge(d.doc_type)}</td>
+              <td style="font-size:12px;color:var(--tx2)">${esc(d.version)}</td>
+              <td style="color:var(--tx2)">${esc(d.dept)}</td>
+              <td style="color:var(--tx2)">${esc(userMap[d.owner_id]?.name||'-')}</td>
+              <td>${sbadge(d.status)}</td>
+              <td style="color:var(--tx3);font-size:12px">${(d.updated_at||'').slice(0,10)}</td>
+              <td style="color:${nearReview(d.review_date)?'var(--er)':'var(--tx3)'};font-size:12px">${d.review_date||'-'}</td>
+            </tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>
+    <div id="dp-area"></div>
+  </div>`;
+}
+
+function setFilt(f){ filt=f; renderDocs(); }
+
+async function openDocDetail(id){
+  selDocId=id; curTab='info';
+  const doc=_allDocs.find(d=>d.id===id);
+  await addAudit('VIEW_DOC',doc?.doc_no||'',doc?.title||'');
+  const userMap=Object.fromEntries(_allUsers.map(u=>[u.id,u]));
+  renderDP(id,userMap);
+}
+
+async function renderDP(id,userMap){
+  const dpArea=document.getElementById('dp-area');
+  if(!dpArea) return;
+  dpArea.innerHTML=`<div class="dp"><div style="display:flex;align-items:center;gap:10px;padding:20px"><div class="spinner"></div>로딩 중...</div></div>`;
+  try{
+    const [docArr,revs,dists,apprs]=await Promise.all([
+      dbGet('documents',{eq:{id}}),
+      dbGet('revisions',{eq:{doc_id:id},order:{col:'created_at',asc:false}}),
+      dbGet('distributions',{eq:{doc_id:id}}),
+      dbGet('approvals',{eq:{doc_id:id},order:{col:'created_at',asc:false}})
+    ]);
+    const d=docArr[0]; if(!d){ dpArea.innerHTML=''; return; }
+    const tags=Array.isArray(d.tags)?d.tags:(d.tags?JSON.parse(d.tags):[]);
+
+    // dist summary by dept
+    const deptMap={};
+    dists.forEach(x=>{ if(!deptMap[x.dept]) deptMap[x.dept]={total:0,confirmed:0}; deptMap[x.dept].total++; if(x.confirmed) deptMap[x.dept].confirmed++; });
+    const distSummary=Object.entries(deptMap).map(([dept,{total,confirmed}])=>({dept,total,confirmed}));
+
+    const infoH=`
+      <div class="ir"><span class="irl">문서번호</span><span class="irv" style="font-family:monospace">${esc(d.doc_no)}</span></div>
+      <div class="ir"><span class="irl">유형</span>${tbadge(d.doc_type)}</div>
+      <div class="ir"><span class="irl">상태</span>${sbadge(d.status)}</div>
+      <div class="ir"><span class="irl">버전</span><span class="irv">${esc(d.version)}</span></div>
+      <div class="ir"><span class="irl">소관부서</span><span class="irv">${esc(d.dept)}</span></div>
+      <div class="ir"><span class="irl">담당자</span><span class="irv">${esc(userMap?.[d.owner_id]?.name||'-')}</span></div>
+      <div class="ir"><span class="irl">최종수정</span><span class="irv">${(d.updated_at||'').slice(0,10)}</span></div>
+      <div class="ir"><span class="irl">정기검토일</span><span class="irv" style="color:${nearReview(d.review_date)?'var(--er)':'inherit'}">${d.review_date||'-'}</span></div>
+      ${d.file_name?`<div class="ir"><span class="irl">첨부파일</span><span class="irv" style="font-size:12px;color:var(--acc)">📎 ${esc(d.file_name)}</span></div>`:''}
+      <div style="margin-top:10px"><div style="font-size:11px;color:var(--tx3);margin-bottom:5px">관련 키워드</div>${tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')||'<span style="font-size:12px;color:var(--tx3)">없음</span>'}</div>`;
+
+    const histH=revs.length===0?'<div style="text-align:center;padding:20px;color:var(--tx3)">이력 없음</div>':
+      revs.map(h=>`<div class="hi"><div class="hd"></div><div><div class="hv">${esc(h.version)} <span class="hm">· ${(h.created_at||'').slice(0,10)} · ${esc(userMap?.[h.author_id]?.name||'-')}</span></div><div class="hr">${esc(h.reason||'')}</div><div style="font-size:11px;color:var(--tx3);margin-top:1px">${esc(h.changes||'')}</div></div></div>`).join('');
+
+    const distH=distSummary.length===0?'<div style="text-align:center;padding:20px;color:var(--tx3)">배포 이력 없음</div>':
+      distSummary.map(x=>{ const pct=x.total>0?Math.round(x.confirmed/x.total*100):0;
+        return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:600">${esc(x.dept)}</span><span style="font-size:12px;color:var(--tx3)">${x.confirmed}/${x.total}명 (${pct}%)</span></div><div class="pgbar"><div class="pgfill${pct<80?' w':''}" style="width:${pct}%"></div></div></div>`;}).join('');
+
+    const canSubmit=d.status==='draft'&&CU.role!=='viewer';
+    const canDist=d.status==='approved'&&(CU.role==='admin'||CU.role==='approver');
+    const canRevise=d.status==='distributed'&&CU.role!=='viewer';
+
+    dpArea.innerHTML=`
+    <div class="dp">
+      <div class="dph">
+        <div><div style="font-size:11px;color:var(--tx3);margin-bottom:2px">${esc(d.doc_no)}</div><div style="font-size:14px;font-weight:700;line-height:1.3">${esc(d.title)}</div></div>
+        <button class="xbtn" onclick="selDocId=null;document.getElementById('dp-area').innerHTML=''"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="tabs">
+        <div class="tab${curTab==='info'?' on':''}" onclick="curTab='info';renderDP(${id},_allUsers?Object.fromEntries(_allUsers.map(u=>[u.id,u])):{})">정보</div>
+        <div class="tab${curTab==='hist'?' on':''}" onclick="curTab='hist';renderDP(${id},_allUsers?Object.fromEntries(_allUsers.map(u=>[u.id,u])):{})">개정이력</div>
+        <div class="tab${curTab==='dist'?' on':''}" onclick="curTab='dist';renderDP(${id},_allUsers?Object.fromEntries(_allUsers.map(u=>[u.id,u])):{})">배포현황</div>
+      </div>
+      <div class="dpb">${curTab==='info'?infoH:curTab==='hist'?histH:distH}</div>
+      <div class="dpf">
+        ${canSubmit?`<button class="btn bp bsm" style="flex:1" onclick="submitDoc(${d.id})">결재 상신</button>`:''}
+        ${canDist?`<button class="btn bp bsm" style="flex:1" onclick="showDistMo(${d.id})">배포</button>`:''}
+        ${canRevise?`<button class="btn bs bsm" style="flex:1" onclick="showReviseMo(${d.id})">개정 신청</button>`:''}
+      </div>
+    </div>`;
+  }catch(e){ dpArea.innerHTML=`<div class="dp"><div style="padding:20px;color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+async function submitDoc(docId){
+  try{
+    const [doc]=await dbGet('documents',{eq:{id:docId}});
+    await dbUpdate('documents',docId,{status:'review',updated_at:new Date().toISOString()});
+    const [apprUser]=await dbGet('users',{in:{role:['approver','admin']}});
+    await dbInsert('approvals',{doc_id:docId,requester_id:CU.id,approver_id:apprUser?.id,action_type:'new',status:'pending'});
+    if(apprUser) await addNotif(apprUser.id,`결재 요청: ${doc.title}`,`${doc.doc_no} 결재가 요청되었습니다.`,'warning');
+    await addAudit('SUBMIT_DOC',doc.doc_no,doc.title);
+    refreshBadge(); toast('결재 상신이 완료되었습니다.','tok'); selDocId=null; renderDocs();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+function showDistMo(docId){
+  openMo('배포 대상 부서 선택',
+    `<p style="font-size:13px;color:var(--tx2);margin-bottom:14px">배포할 부서를 선택하세요. 선택된 부서 전원에게 알림이 발송됩니다.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${DEPTS.map(d=>`<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer;font-size:13px"><input type="checkbox" class="dist-chk" value="${d}" style="width:14px;height:14px"> ${d}</label>`).join('')}
+    </div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bp" onclick="confirmDist(${docId})">배포</button>`);
+}
+
+async function confirmDist(docId){
+  const chks=document.querySelectorAll('.dist-chk:checked');
+  const depts=Array.from(chks).map(c=>c.value);
+  if(!depts.length){ toast('배포 대상 부서를 선택하세요.','terr'); return; }
+  try{
+    const [doc]=await dbGet('documents',{eq:{id:docId}});
+    await dbUpdate('documents',docId,{status:'distributed',updated_at:new Date().toISOString()});
+    for(const dept of depts){
+      const deptUsers=await dbGet('users',{eq:{dept,status:'active'}});
+      for(const u of deptUsers){
+        const ex=await dbGet('distributions',{eq:{doc_id:docId,user_id:u.id}});
+        if(!ex.length) await dbInsert('distributions',{doc_id:docId,dept,user_id:u.id,confirmed:false});
+        await addNotif(u.id,`새 문서 배포: ${doc.title}`,`${doc.doc_no} 문서를 확인해주세요.`,'info');
+      }
+    }
+    await addAudit('DISTRIBUTE',doc.doc_no,depts.join(','));
+    closeMo(); toast('배포가 완료되었습니다.','tok'); selDocId=null; renderDocs();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+function showReviseMo(docId){
+  openMo('개정 신청',
+    `<div class="fg"><label class="fl">개정 사유 <span>*</span></label><textarea class="fc" id="rv-reason" rows="3" placeholder="개정 사유를 입력하세요..."></textarea></div>
+    <div class="fg"><label class="fl">주요 변경 내용</label><textarea class="fc" id="rv-changes" rows="3" placeholder="주요 변경 내용을 입력하세요..."></textarea></div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bp" onclick="confirmRevise(${docId})">개정 신청</button>`);
+}
+
+async function confirmRevise(docId){
+  const reason=document.getElementById('rv-reason').value.trim();
+  if(!reason){ toast('개정 사유를 입력하세요.','terr'); return; }
+  try{
+    const [doc]=await dbGet('documents',{eq:{id:docId}});
+    const num=parseInt((doc.version.match(/\d+/)||['1'])[0])+1;
+    const newVer=`Rev.${num}`;
+    await dbUpdate('documents',docId,{version:newVer,status:'draft',updated_at:new Date().toISOString()});
+    await dbInsert('revisions',{doc_id:docId,version:newVer,author_id:CU.id,reason,changes:document.getElementById('rv-changes').value});
+    await addAudit('REVISE',doc.doc_no,reason);
+    closeMo(); toast(`개정 신청 완료 (${newVer})`,'tok'); selDocId=null; renderDocs();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+// ────────────────────────────────────────
+//  결재함
+// ────────────────────────────────────────
+async function renderApproval(){
+  loading();
+  try{
+    const [all,users,docs]=await Promise.all([
+      dbGet('approvals',{order:{col:'created_at',asc:false}}),
+      dbGet('users'),
+      dbGet('documents')
+    ]);
+    const userMap=Object.fromEntries(users.map(u=>[u.id,u]));
+    const docMap=Object.fromEntries(docs.map(d=>[d.id,d]));
+    const pending=all.filter(a=>a.status==='pending');
+    document.getElementById('pc').innerHTML=`
+    <div class="page">
+      <div class="ph"><div><h1>결재함</h1><p>전자결재 처리</p></div></div>
+      <div class="tabs" style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl) var(--rl) 0 0;padding:0 16px;margin-bottom:0">
+        <div class="tab${apprFilt==='pending'?' on':''}" onclick="apprFilt='pending';renderApprovalList(${JSON.stringify(all).replace(/</g,'\\u003c')},${JSON.stringify(userMap).replace(/</g,'\\u003c')},${JSON.stringify(docMap).replace(/</g,'\\u003c')})">대기 중 (${pending.length})</div>
+        <div class="tab${apprFilt==='all'?' on':''}" onclick="apprFilt='all';renderApprovalList(${JSON.stringify(all).replace(/</g,'\\u003c')},${JSON.stringify(userMap).replace(/</g,'\\u003c')},${JSON.stringify(docMap).replace(/</g,'\\u003c')})">전체 이력</div>
+      </div>
+      <div id="appr-list"></div>
+    </div>`;
+    renderApprovalList(all,userMap,docMap);
+  }catch(e){ document.getElementById('pc').innerHTML=`<div class="page"><div style="color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+function renderApprovalList(all,userMap,docMap){
+  const list=apprFilt==='pending'?all.filter(a=>a.status==='pending'):all;
+  const el=document.getElementById('appr-list'); if(!el) return;
+  const stMap={pending:'s-pending',approved:'s-approved',rejected:'s-obsolete'};
+  const stLabel={pending:'대기 중',approved:'승인',rejected:'반려'};
+  el.innerHTML=list.length===0?`<div class="card" style="border-radius:0 0 var(--rl) var(--rl)"><div class="empty"><p>결재 건이 없습니다</p></div></div>`:
+    list.map(a=>{
+      const d=docMap[a.doc_id]; const req=userMap[a.requester_id];
+      return `<div class="card" style="margin-bottom:12px">
+        <div class="ch">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span class="mono">${esc(d?.doc_no||'-')}</span>
+              <span style="font-size:14px;font-weight:700">${esc(d?.title||'-')}</span>
+              ${d?tbadge(d.doc_type):''}
+              <span class="badge ${stMap[a.status]||'s-draft'}">${stLabel[a.status]||a.status}</span>
+              <span class="badge s-draft">${a.action_type==='new'?'신규제정':'개정'}</span>
+            </div>
+            <div style="font-size:12px;color:var(--tx3);margin-top:3px">상신: ${esc(req?.name||'-')} (${esc(req?.dept||'-')}) · ${(a.created_at||'').slice(0,10)}${a.comment?` · 사유: ${esc(a.comment)}`:''}</div>
+          </div>
+          ${a.status==='pending'&&(CU.role==='admin'||CU.role==='approver')?`
+          <div style="display:flex;gap:6px">
+            <button class="btn bk" onclick="approveItem(${a.id},${JSON.stringify(all)},${JSON.stringify(userMap)},${JSON.stringify(docMap)})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>승인</button>
+            <button class="btn bd" onclick="showRejectMo(${a.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>반려</button>
+          </div>`:''}
+        </div>
+        <div class="cb" style="padding-top:10px">
+          <div class="wf">
+            ${['초안 작성','검토 요청','유관부서 검토','보완 및 승인','배포'].map((s,i)=>`<div class="wfs"><div class="wfc${i<3?' done':i===3?' cur':''}">${i<3?'✓':i===3?'◉':'○'}</div><div class="wfl">${s}</div></div>`).join('')}
+          </div>
+        </div>
+      </div>`;}).join('');
+}
+
+async function approveItem(apprId){
+  try{
+    const [a]=await dbGet('approvals',{eq:{id:apprId}});
+    const [doc]=await dbGet('documents',{eq:{id:a.doc_id}});
+    await dbUpdate('approvals',apprId,{status:'approved',approver_id:CU.id,decided_at:new Date().toISOString()});
+    await dbUpdate('documents',a.doc_id,{status:'approved',updated_at:new Date().toISOString()});
+    await addNotif(a.requester_id,`승인 완료: ${doc.title}`,`${doc.doc_no} 문서가 승인되었습니다.`,'success');
+    await addAudit('APPROVE',doc.doc_no,doc.title);
+    refreshBadge(); toast('승인되었습니다.','tok'); renderApproval();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+function showRejectMo(apprId){
+  openMo('반려 사유 입력',
+    `<div class="fg"><label class="fl">반려 사유 <span>*</span></label><textarea class="fc" id="rj-reason" rows="4" placeholder="반려 사유를 입력하세요..."></textarea></div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bd" onclick="confirmReject(${apprId})">반려 확인</button>`);
+}
+
+async function confirmReject(apprId){
+  const comment=document.getElementById('rj-reason').value.trim();
+  if(!comment){ toast('반려 사유를 입력하세요.','terr'); return; }
+  try{
+    const [a]=await dbGet('approvals',{eq:{id:apprId}});
+    const [doc]=await dbGet('documents',{eq:{id:a.doc_id}});
+    await dbUpdate('approvals',apprId,{status:'rejected',comment,approver_id:CU.id,decided_at:new Date().toISOString()});
+    await dbUpdate('documents',a.doc_id,{status:'revision',updated_at:new Date().toISOString()});
+    await addNotif(a.requester_id,`반려: ${doc.title}`,`사유: ${comment}`,'danger');
+    await addAudit('REJECT',doc.doc_no,comment);
+    refreshBadge(); closeMo(); toast('반려되었습니다.','terr'); renderApproval();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+// ────────────────────────────────────────
+//  배포 관리
+// ────────────────────────────────────────
+async function renderDist(){
+  loading();
+  try{
+    const docs=await dbGet('documents',{eq:{status:'distributed'},order:{col:'updated_at',asc:false}});
+    const dists=await dbGet('distributions');
+    document.getElementById('pc').innerHTML=`
+    <div class="page">
+      <div class="ph"><div><h1>배포 관리</h1><p>부서별 열람 확인 현황</p></div></div>
+      ${docs.length===0?'<div class="card"><div class="empty"><p>배포된 문서가 없습니다</p></div></div>':
+      docs.map(doc=>{
+        const dd=dists.filter(x=>x.doc_id===doc.id);
+        const deptMap={};
+        dd.forEach(x=>{ if(!deptMap[x.dept]) deptMap[x.dept]={total:0,confirmed:0}; deptMap[x.dept].total++; if(x.confirmed) deptMap[x.dept].confirmed++; });
+        const total=dd.length; const conf=dd.filter(x=>x.confirmed).length;
+        const pct=total>0?Math.round(conf/total*100):0;
+        return `<div class="card" style="margin-bottom:14px">
+          <div class="ch">
+            <div><div style="display:flex;align-items:center;gap:8px"><span class="mono">${esc(doc.doc_no)}</span><span style="font-size:14px;font-weight:700">${esc(doc.title)}</span>${tbadge(doc.doc_type)}</div>
+            <div style="font-size:12px;color:var(--tx3);margin-top:3px">배포일: ${(doc.updated_at||'').slice(0,10)} · ${esc(doc.version)}</div></div>
+            <div style="text-align:right"><div style="font-size:24px;font-weight:700;color:${pct>=90?'var(--ok)':pct>=70?'var(--wn)':'var(--er)'}">${pct}%</div><div style="font-size:11px;color:var(--tx3)">${conf}/${total}명</div></div>
+          </div>
+          <div class="cb" style="padding-top:10px">
+            <div class="pgbar" style="height:7px;margin-bottom:14px"><div class="pgfill${pct<80?' w':''}" style="width:${pct}%"></div></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">
+              ${Object.entries(deptMap).map(([dept,{total:dt,confirmed:dc}])=>{
+                const p=dt>0?Math.round(dc/dt*100):0;
+                return `<div style="padding:9px 12px;background:var(--surf2);border-radius:var(--r)">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:600">${esc(dept)}</span><span style="font-size:12px;color:${p===100?'var(--ok)':'var(--tx3)'}">${p}%</span></div>
+                  <div class="pgbar"><div class="pgfill${p<80?' w':''}" style="width:${p}%"></div></div>
+                  <div style="font-size:11px;color:var(--tx3);margin-top:3px">${dc}/${dt}명</div>
+                </div>`;}).join('')}
+            </div>
+            ${CU.role!=='admin'&&CU.role!=='approver'?`<button class="btn bk bsm" style="margin-top:10px" onclick="confirmRead(${doc.id})">내 열람 확인</button>`:''}
+          </div>
+        </div>`;}).join('')}
+    </div>`;
+  }catch(e){ document.getElementById('pc').innerHTML=`<div class="page"><div style="color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+async function confirmRead(docId){
+  try{
+    const ex=await dbGet('distributions',{eq:{doc_id:docId,user_id:CU.id}});
+    if(!ex.length){ toast('배포 대상에 포함되지 않았습니다.','tinf'); return; }
+    if(ex[0].confirmed){ toast('이미 확인하셨습니다.','tinf'); return; }
+    await dbUpdate('distributions',ex[0].id,{confirmed:true,confirmed_at:new Date().toISOString()});
+    await addAudit('CONFIRM_READ','','');
+    toast('열람 확인이 완료되었습니다.','tok'); renderDist();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+// ────────────────────────────────────────
+//  문서 등록
+// ────────────────────────────────────────
+async function renderRegister(){
+  loading();
+  const users=await dbGet('users',{eq:{status:'active'}});
+  document.getElementById('pc').innerHTML=`
+  <div class="page">
+    <div class="ph"><div><h1>문서 등록</h1><p>새 문서를 등록합니다</p></div></div>
+    <div class="card">
+      <div class="ch"><div class="ct">기본 정보</div></div>
+      <div class="cb">
+        <div class="fr2">
+          <div class="fg"><label class="fl">문서번호 <span>*</span></label><input type="text" class="fc" id="f-no" placeholder="예: QP-005"></div>
+          <div class="fg"><label class="fl">문서명 <span>*</span></label><input type="text" class="fc" id="f-title" placeholder="문서명을 입력하세요"></div>
+        </div>
+        <div class="fr3">
+          <div class="fg"><label class="fl">문서 유형 <span>*</span></label><select class="fc" id="f-type"><option value="proc">절차서</option><option value="guide">지침서</option><option value="form">서식</option><option value="std">표준서</option></select></div>
+          <div class="fg"><label class="fl">소관부서 <span>*</span></label><select class="fc" id="f-dept">${dOpts()}</select></div>
+          <div class="fg"><label class="fl">담당자</label><select class="fc" id="f-owner">${users.map(u=>`<option value="${u.id}">${esc(u.name)} (${esc(u.dept)})</option>`).join('')}</select></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">버전</label><input type="text" class="fc" id="f-ver" value="Rev.1"></div>
+          <div class="fg"><label class="fl">정기검토일</label><input type="date" class="fc" id="f-review"></div>
+        </div>
+        <div class="fg"><label class="fl">키워드 (쉼표로 구분)</label><input type="text" class="fc" id="f-tags" placeholder="예: ISO9001, 품질, 절차"></div>
+        <div class="fg"><label class="fl">제·개정 사유</label><textarea class="fc" id="f-reason" rows="3" placeholder="제·개정 사유를 입력하세요..."></textarea></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px">
+      <button class="btn bs" onclick="saveDraftDoc()">임시저장</button>
+      <button class="btn bp" onclick="submitNewDoc()">결재 상신</button>
+    </div>
+  </div>`;
+}
+
+async function createDoc(status){
+  const docNo=document.getElementById('f-no').value.trim();
+  const title=document.getElementById('f-title').value.trim();
+  if(!docNo||!title){ toast('문서번호와 문서명은 필수입니다.','terr'); return null; }
+  const tags=document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  try{
+    const ex=await dbGet('documents',{eq:{doc_no:docNo}});
+    if(ex.length){ toast('이미 존재하는 문서번호입니다.','terr'); return null; }
+    const doc=await dbInsert('documents',{
+      doc_no:docNo, title, doc_type:document.getElementById('f-type').value,
+      dept:document.getElementById('f-dept').value,
+      owner_id:parseInt(document.getElementById('f-owner').value)||CU.id,
+      version:document.getElementById('f-ver').value||'Rev.1', status,
+      tags:JSON.stringify(tags),
+      review_date:document.getElementById('f-review').value||null,
+      reason:document.getElementById('f-reason').value
+    });
+    await dbInsert('revisions',{doc_id:doc.id,version:doc.version,author_id:CU.id,reason:doc.reason||'최초 작성',changes:'신규 문서 작성'});
+    await addAudit('CREATE_DOC',docNo,title);
+    return doc;
+  }catch(e){ toast('오류: '+e.message,'terr'); return null; }
+}
+
+async function saveDraftDoc(){
+  const doc=await createDoc('draft'); if(!doc) return;
+  toast('임시저장되었습니다.','tok'); goto('documents');
+}
+
+async function submitNewDoc(){
+  const doc=await createDoc('review'); if(!doc) return;
+  const [apprUser]=await dbGet('users',{in:{role:['approver','admin']}});
+  await dbInsert('approvals',{doc_id:doc.id,requester_id:CU.id,approver_id:apprUser?.id,action_type:'new',status:'pending'});
+  if(apprUser) await addNotif(apprUser.id,`결재 요청: ${doc.title}`,`${doc.doc_no} 결재가 요청되었습니다.`,'warning');
+  refreshBadge(); toast('결재 상신이 완료되었습니다.','tok'); goto('documents');
+}
+
+// ────────────────────────────────────────
+//  개정 이력
+// ────────────────────────────────────────
+async function renderHistory(){
+  loading();
+  try{
+    const [revs,docs,users]=await Promise.all([
+      dbGet('revisions',{order:{col:'created_at',asc:false}}),
+      dbGet('documents'),
+      dbGet('users')
+    ]);
+    const docMap=Object.fromEntries(docs.map(d=>[d.id,d]));
+    const userMap=Object.fromEntries(users.map(u=>[u.id,u]));
+    document.getElementById('pc').innerHTML=`
+    <div class="page">
+      <div class="ph"><div><h1>개정 이력</h1><p>전체 문서 개정 이력</p></div></div>
+      <div class="card"><div class="tw">
+        <table><thead><tr><th>문서번호</th><th>문서명</th><th>버전</th><th>개정일</th><th>개정자</th><th>개정 사유</th><th>변경 내용</th></tr></thead>
+        <tbody>${revs.length===0?'<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--tx3)">이력 없음</td></tr>':
+        revs.map(h=>{
+          const d=docMap[h.doc_id]; const u=userMap[h.author_id];
+          return `<tr><td><span class="mono">${esc(d?.doc_no||'-')}</span></td><td><span class="fw">${esc(d?.title||'-')}</span></td><td><span class="badge s-pending">${esc(h.version)}</span></td><td style="color:var(--tx3);font-size:12px">${(h.created_at||'').slice(0,10)}</td><td style="color:var(--tx2)">${esc(u?.name||'-')}</td><td style="max-width:200px">${esc(h.reason||'')}</td><td style="color:var(--tx2);max-width:180px">${esc(h.changes||'')}</td></tr>`;
+        }).join('')}
+        </tbody></table>
+      </div></div>
+    </div>`;
+  }catch(e){ document.getElementById('pc').innerHTML=`<div class="page"><div style="color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+// ────────────────────────────────────────
+//  사용자 관리
+// ────────────────────────────────────────
+async function renderUsers(){
+  loading();
+  try{
+    const users=await dbGet('users',{order:{col:'id',asc:true}});
+    const roleCount=r=>users.filter(u=>u.role===r&&u.status==='active').length;
+    document.getElementById('pc').innerHTML=`
+    <div class="page">
+      <div class="ph">
+        <div><h1>사용자 관리</h1><p>권한 및 역할 관리</p></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn bs" onclick="showSignupMo()">회원가입 신청</button>
+          <button class="btn bp" onclick="showAddUserMo()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>사용자 추가</button>
+        </div>
+      </div>
+      <div class="sg" style="margin-bottom:18px">
+        ${['admin','approver','reviewer','writer','viewer'].map(r=>`<div class="sc"><div class="slb">${rbadge(r)}</div><div class="sv" style="font-size:22px">${roleCount(r)}</div></div>`).join('')}
+      </div>
+      <div class="card"><div class="tw">
+        <table><thead><tr><th>이름</th><th>사번</th><th>부서</th><th>역할</th><th>아이디</th><th>이메일</th><th>최종로그인</th><th>상태</th><th></th></tr></thead>
+        <tbody>${users.map(u=>`
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--in-bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--in-tx);flex-shrink:0">${esc(u.name[0])}</div><span class="fw">${esc(u.name)}</span></div></td>
+            <td><span class="mono">${esc(u.emp_no||'-')}</span></td>
+            <td style="color:var(--tx2)">${esc(u.dept)}</td>
+            <td>${rbadge(u.role)}</td>
+            <td><span class="mono">${esc(u.username)}</span></td>
+            <td style="font-size:12px;color:var(--tx3)">${esc(u.email||'-')}</td>
+            <td style="font-size:12px;color:var(--tx3)">${u.last_login?(u.last_login||'').slice(0,16):'-'}</td>
+            <td>${statusBadge(u.status)}</td>
+            <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="btn bs bsm" onclick="showEditUserMo(${u.id})">수정</button>
+              <button class="btn bs bsm" onclick="showResetPwMo(${u.id},'${esc(u.name)}')">비번</button>
+              ${u.status==='pending'?`<button class="btn bk bsm" onclick="approveUser(${u.id})">승인</button>`:''}
+              <button class="btn ${u.status==='active'?'bd':'bk'} bsm" onclick="toggleUser(${u.id})">${u.status==='active'?'비활성':'활성'}</button>
+              ${CU.id!==u.id?`<button class="btn bd bsm" onclick="showDeleteUserMo(${u.id},'${esc(u.name)}')">삭제</button>`:''}
+            </div></td>
+          </tr>`).join('')}
+        </tbody></table>
+      </div></div>
+    </div>`;
+  }catch(e){ document.getElementById('pc').innerHTML=`<div class="page"><div style="color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+function showAddUserMo(){
+  openMo('사용자 추가',`
+    <div class="fr2"><div class="fg"><label class="fl">사번 <span>*</span></label><input type="text" class="fc" id="nu-emp" placeholder="예: 230001"></div><div class="fg"><label class="fl">이름 <span>*</span></label><input type="text" class="fc" id="nu-name" placeholder="홍길동"></div></div>
+    <div class="fg"><label class="fl">아이디 (미입력 시 사번)</label><input type="text" class="fc" id="nu-uid" placeholder="미입력 시 사번 사용"></div>
+    <div class="fr2"><div class="fg"><label class="fl">비밀번호 <span>*</span></label><input type="password" class="fc" id="nu-pw" placeholder="6자 이상"></div><div class="fg"><label class="fl">이메일</label><input type="email" class="fc" id="nu-email" placeholder="user@techwing.com"></div></div>
+    <div class="fr2"><div class="fg"><label class="fl">부서 <span>*</span></label><select class="fc" id="nu-dept">${dOpts()}</select></div><div class="fg"><label class="fl">권한 <span>*</span></label><select class="fc" id="nu-role">${rOpts()}</select></div></div>
+    <div class="fg"><label class="fl">연락처</label><input type="text" class="fc" id="nu-phone" placeholder="010-0000-0000"></div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bp" onclick="addUser()">추가</button>`);
+}
+
+async function addUser(){
+  const empNo=document.getElementById('nu-emp').value.trim();
+  const name=document.getElementById('nu-name').value.trim();
+  const username=document.getElementById('nu-uid').value.trim()||empNo;
+  const pw=document.getElementById('nu-pw').value;
+  if(!empNo||!name||pw.length<6){ toast('사번, 이름, 비밀번호(6자↑)를 입력하세요.','terr'); return; }
+  try{
+    const ex=await dbGet('users',{eq:{username}});
+    if(ex.length){ toast('이미 존재하는 아이디입니다.','terr'); return; }
+    await dbInsert('users',{emp_no:empNo,username,password_hash:pw,name,dept:document.getElementById('nu-dept').value,role:document.getElementById('nu-role').value,email:document.getElementById('nu-email').value,phone:document.getElementById('nu-phone').value,status:'active'});
+    await addAudit('CREATE_USER','',`${empNo} ${name}`);
+    closeMo(); toast('사용자가 추가되었습니다.','tok'); renderUsers();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+async function showEditUserMo(id){
+  const [u]=await dbGet('users',{eq:{id}});
+  openMo('사용자 수정',`
+    <div class="fr2"><div class="fg"><label class="fl">사번</label><input type="text" class="fc" id="eu-emp" value="${esc(u.emp_no||'')}"></div><div class="fg"><label class="fl">이름</label><input type="text" class="fc" id="eu-name" value="${esc(u.name)}"></div></div>
+    <div class="fr2"><div class="fg"><label class="fl">아이디</label><input type="text" class="fc" id="eu-uid" value="${esc(u.username)}"></div><div class="fg"><label class="fl">이메일</label><input type="email" class="fc" id="eu-email" value="${esc(u.email||'')}"></div></div>
+    <div class="fr2"><div class="fg"><label class="fl">부서</label><select class="fc" id="eu-dept">${dOpts(u.dept)}</select></div><div class="fg"><label class="fl">권한</label><select class="fc" id="eu-role">${rOpts(u.role)}</select></div></div>
+    <div class="fg"><label class="fl">연락처</label><input type="text" class="fc" id="eu-phone" value="${esc(u.phone||'')}"></div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bp" onclick="saveUser(${id})">저장</button>`);
+}
+
+async function saveUser(id){
+  const empNo=document.getElementById('eu-emp').value.trim();
+  const username=document.getElementById('eu-uid').value.trim();
+  if(!empNo||!username){ toast('사번과 아이디는 필수입니다.','terr'); return; }
+  try{
+    await dbUpdate('users',id,{emp_no:empNo,username,name:document.getElementById('eu-name').value,dept:document.getElementById('eu-dept').value,role:document.getElementById('eu-role').value,email:document.getElementById('eu-email').value,phone:document.getElementById('eu-phone').value});
+    await addAudit('UPDATE_USER','',`${empNo}`);
+    closeMo(); toast('수정되었습니다.','tok'); renderUsers();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+function showResetPwMo(id,name){
+  openMo(`비밀번호 초기화: ${name}`,
+    `<div class="fg"><label class="fl">새 비밀번호 <span>*</span></label><input type="password" class="fc" id="rp-pw" placeholder="6자 이상"></div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bp" onclick="resetPw(${id})">초기화</button>`);
+}
+
+async function resetPw(id){
+  const pw=document.getElementById('rp-pw').value;
+  if(pw.length<6){ toast('6자 이상 입력하세요.','terr'); return; }
+  try{
+    await dbUpdate('users',id,{password_hash:pw});
+    await addAudit('RESET_PW','',`user_id:${id}`);
+    closeMo(); toast('비밀번호가 초기화되었습니다.','tok');
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+async function toggleUser(id){
+  if(id===CU.id){ toast('자신의 계정은 비활성화할 수 없습니다.','terr'); return; }
+  const [u]=await dbGet('users',{eq:{id}});
+  const ns=u.status==='active'?'inactive':'active';
+  await dbUpdate('users',id,{status:ns});
+  await addAudit('UPDATE_USER_STATUS','',`user_id:${id} -> ${ns}`);
+  toast('상태가 변경되었습니다.','tok'); renderUsers();
+}
+
+async function approveUser(id){
+  await dbUpdate('users',id,{status:'active'});
+  await addAudit('APPROVE_USER','',`user_id:${id}`);
+  toast('회원가입이 승인되었습니다.','tok'); renderUsers();
+}
+
+function showDeleteUserMo(id,name){
+  openMo('사용자 삭제',
+    `<div style="background:var(--er-bg);color:var(--er-tx);padding:14px;border-radius:var(--r);border-left:3px solid var(--er)">삭제 대상: <b>${esc(name)}</b><br><br>이 작업은 되돌릴 수 없습니다.</div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bd" onclick="deleteUser(${id})">삭제</button>`);
+}
+
+async function deleteUser(id){
+  try{
+    // reassign docs
+    await sb.from('documents').update({owner_id:CU.id}).eq('owner_id',id);
+    await sb.from('approvals').delete().or(`requester_id.eq.${id},approver_id.eq.${id}`);
+    await sb.from('distributions').delete().eq('user_id',id);
+    await sb.from('notifications').delete().eq('user_id',id);
+    await dbDelete('users',id);
+    await addAudit('DELETE_USER','',`user_id:${id}`);
+    closeMo(); toast('삭제되었습니다.','tok'); renderUsers();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+function showSignupMo(){
+  openMo('회원가입 신청',`
+    <div class="fr2"><div class="fg"><label class="fl">사번 <span>*</span></label><input type="text" class="fc" id="su-emp" placeholder="회사 사번"></div><div class="fg"><label class="fl">이름 <span>*</span></label><input type="text" class="fc" id="su-name" placeholder="홍길동"></div></div>
+    <div class="fr2"><div class="fg"><label class="fl">아이디</label><input type="text" class="fc" id="su-uid" placeholder="미입력 시 사번"></div><div class="fg"><label class="fl">비밀번호 <span>*</span></label><input type="password" class="fc" id="su-pw" placeholder="6자 이상"></div></div>
+    <div class="fr2"><div class="fg"><label class="fl">부서 <span>*</span></label><select class="fc" id="su-dept">${dOpts()}</select></div><div class="fg"><label class="fl">이메일</label><input type="email" class="fc" id="su-email"></div></div>
+    <div style="background:var(--in-bg);padding:10px 12px;border-radius:var(--r);font-size:12px;color:var(--in-tx);margin-top:4px">관리자 승인 후 로그인 가능합니다.</div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitSignup()">신청</button>`);
+}
+
+async function submitSignup(){
+  const empNo=document.getElementById('su-emp').value.trim();
+  const name=document.getElementById('su-name').value.trim();
+  const username=document.getElementById('su-uid').value.trim()||empNo;
+  const pw=document.getElementById('su-pw').value;
+  if(!empNo||!name||pw.length<6){ toast('사번, 이름, 비밀번호를 확인하세요.','terr'); return; }
+  try{
+    const ex=await dbGet('users',{eq:{username}});
+    if(ex.length){ toast('이미 등록된 아이디입니다.','terr'); return; }
+    await dbInsert('users',{emp_no:empNo,username,password_hash:pw,name,dept:document.getElementById('su-dept').value,role:'viewer',email:document.getElementById('su-email').value,status:'pending'});
+    const admins=await dbGet('users',{eq:{role:'admin',status:'active'}});
+    for(const a of admins) await addNotif(a.id,'회원가입 승인 대기',`${name}(${empNo}) 계정 승인이 필요합니다.`,'warning');
+    closeMo(); toast('신청 완료! 관리자 승인 후 로그인 가능합니다.','tok');
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+// ────────────────────────────────────────
+//  감사 로그
+// ────────────────────────────────────────
+async function renderAudit(){
+  loading();
+  try{
+    const [logs,users]=await Promise.all([
+      dbGet('audit_log',{order:{col:'created_at',asc:false},limit:100}),
+      dbGet('users')
+    ]);
+    const userMap=Object.fromEntries(users.map(u=>[u.id,u]));
+    const actionLabel={LOGIN:'로그인',LOGOUT:'로그아웃',VIEW_DOC:'문서 열람',CREATE_DOC:'문서 등록',SUBMIT_DOC:'결재 상신',APPROVE:'승인',REJECT:'반려',DISTRIBUTE:'배포',CONFIRM_READ:'열람 확인',REVISE:'개정 신청',CREATE_USER:'사용자 추가',UPDATE_USER:'사용자 수정',RESET_PW:'비번 초기화',UPDATE_USER_STATUS:'상태 변경',APPROVE_USER:'가입 승인',DELETE_USER:'사용자 삭제'};
+    document.getElementById('pc').innerHTML=`
+    <div class="page">
+      <div class="ph"><div><h1>감사 로그</h1><p>최근 100건 시스템 활동 기록</p></div></div>
+      <div class="card"><div class="tw">
+        <table><thead><tr><th>일시</th><th>사용자</th><th>부서</th><th>액션</th><th>대상</th><th>상세</th></tr></thead>
+        <tbody>${logs.length===0?'<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--tx3)">로그 없음</td></tr>':
+        logs.map(l=>{
+          const u=userMap[l.user_id];
+          return `<tr><td style="font-size:12px;color:var(--tx3);white-space:nowrap">${(l.created_at||'').slice(0,16)}</td><td style="font-weight:600">${esc(u?.name||'-')}</td><td style="color:var(--tx2)">${esc(u?.dept||'-')}</td><td><span class="badge s-pending" style="font-size:10px">${actionLabel[l.action]||l.action}</span></td><td><span class="mono">${esc(l.target||'-')}</span></td><td style="font-size:12px;color:var(--tx2);max-width:200px">${esc(l.detail||'')}</td></tr>`;
+        }).join('')}
+        </tbody></table>
+      </div></div>
+    </div>`;
+  }catch(e){ document.getElementById('pc').innerHTML=`<div class="page"><div style="color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
+}
+
+// ────────────────────────────────────────
+//  내 프로필 / 비밀번호 변경
+// ────────────────────────────────────────
+function showProfile(){
+  openMo('내 정보 · 비밀번호 변경',`
+    <div style="background:var(--surf2);border-radius:var(--r);padding:14px;margin-bottom:18px;display:flex;align-items:center;gap:12px">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--in-bg);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--in-tx)">${esc(CU.name[0])}</div>
+      <div><div style="font-size:15px;font-weight:700">${esc(CU.name)}</div><div style="font-size:12px;color:var(--tx3)">${esc(CU.dept)} · ${ROLE_LABELS[CU.role]||CU.role}</div><div style="font-size:12px;color:var(--tx3)">${esc(CU.email||'')}</div></div>
+    </div>
+    <div class="div"></div>
+    <div class="sec">비밀번호 변경</div>
+    <div class="fg"><label class="fl">현재 비밀번호</label><input type="password" class="fc" id="cp-old"></div>
+    <div class="fg"><label class="fl">새 비밀번호</label><input type="password" class="fc" id="cp-new" oninput="checkPwStr(this.value)"><div class="pwbar" id="pwbar2"></div></div>
+    <div class="fg"><label class="fl">새 비밀번호 확인</label><input type="password" class="fc" id="cp-cf"></div>`,
+    `<button class="btn bs" onclick="closeMo()">닫기</button><button class="btn bp" onclick="changePw()">비밀번호 변경</button>`);
+}
+function checkPwStr(v){
+  const b=document.getElementById('pwbar2'); if(!b) return;
+  const s=v.length>=10&&/[A-Z]/.test(v)&&/[0-9]/.test(v)?3:v.length>=8?2:v.length>=6?1:0;
+  b.style.background=['var(--bdr)','var(--er)','var(--wn)','var(--ok)'][s];
+  b.style.width=['0%','33%','66%','100%'][s];
+}
+async function changePw(){
+  const oldPw=document.getElementById('cp-old').value;
+  const np=document.getElementById('cp-new').value;
+  const cf=document.getElementById('cp-cf').value;
+  if(oldPw!==CU.password_hash&&oldPw!==CU.pw){ toast('현재 비밀번호가 올바르지 않습니다.','terr'); return; }
+  if(np.length<6){ toast('새 비밀번호는 6자 이상이어야 합니다.','terr'); return; }
+  if(np!==cf){ toast('새 비밀번호가 일치하지 않습니다.','terr'); return; }
+  await dbUpdate('users',CU.id,{password_hash:np});
+  CU.password_hash=np; sessionStorage.setItem('dms_cu',JSON.stringify(CU));
+  closeMo(); toast('비밀번호가 변경되었습니다.','tok');
+}
+
+// ────────────────────────────────────────
+//  알림
+// ────────────────────────────────────────
+async function toggleNotif(){
+  notifOpen=!notifOpen;
+  document.getElementById('npanel').classList.toggle('on',notifOpen);
+  if(notifOpen){
+    document.getElementById('ndot').style.display='none';
+    await sb.from('notifications').update({is_read:true}).eq('user_id',CU.id);
+    const notifs=await dbGet('notifications',{eq:{user_id:CU.id},order:{col:'created_at',asc:false},limit:10});
+    document.getElementById('nlist').innerHTML=notifs.length===0?
+      '<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">알림 없음</div>':
+      notifs.map(n=>`<div class="nitem"><div class="ntitle">${esc(n.title)}</div><div class="nmsg">${esc(n.message||'')}</div><div style="font-size:11px;color:var(--tx3);margin-top:3px">${(n.created_at||'').slice(0,16)}</div></div>`).join('');
+  }
+}
+document.addEventListener('click',e=>{
+  const nb=document.getElementById('notif-btn');
+  const np=document.getElementById('npanel');
+  if(nb&&np&&!nb.contains(e.target)&&!np.contains(e.target)){ notifOpen=false; np.classList.remove('on'); }
+});
+
+// ────────────────────────────────────────
+//  스피너 CSS 추가
+// ────────────────────────────────────────
+const _spinStyle=document.createElement('style');
+_spinStyle.textContent='.spinner{width:18px;height:18px;border:2px solid var(--bdr);border-top-color:var(--acc);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(_spinStyle);
+
+// ────────────────────────────────────────
+//  세션 복원 (새로고침 유지)
+// ────────────────────────────────────────
+(async function init(){
+  const saved=sessionStorage.getItem('dms_cu');
+  if(saved){
+    try{
+      CU=JSON.parse(saved);
+      // 사용자 정보 최신화
+      const [fresh]=await dbGet('users',{eq:{id:CU.id,status:'active'}});
+      if(fresh){ CU=fresh; sessionStorage.setItem('dms_cu',JSON.stringify(CU)); startApp(); return; }
+    }catch(e){ console.warn('session restore fail',e); }
+    sessionStorage.removeItem('dms_cu');
+  }
+  // 로그인 화면 표시
+  document.getElementById('pg-login').style.display='flex';
+  // 회원가입 버튼 추가
+  const lbox=document.querySelector('.lbox');
+  if(lbox&&!lbox.querySelector('.signup-link')){
+    const sl=document.createElement('div');
+    sl.className='signup-link';
+    sl.style.cssText='text-align:center;margin-top:14px;font-size:13px;color:var(--tx3)';
+    sl.innerHTML='계정이 없으신가요? <a href="#" style="color:var(--acc);font-weight:600" onclick="event.preventDefault();showSignupMo()">회원가입 신청</a>';
+    lbox.appendChild(sl);
+  }
+})();
+
+</script>
+</body>
+</html>
