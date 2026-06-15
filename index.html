@@ -21,6 +21,10 @@
 }
 body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
 
+.badge.s-rev1{background:#ede9fe;color:#5b21b6}
+.badge.s-rev2{background:#ddd6fe;color:#4c1d95}
+.badge.s-std{background:#fef3c7;color:#92400e}
+.badge.s-grp{background:#cffafe;color:#164e63}
 /* LOGIN */
 #pg-login{display:flex;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(145deg,#0f172a 0%,#1e3a8a 55%,#1d4ed8 100%)}
 .lbox{background:var(--surf);border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.32)}
@@ -90,10 +94,10 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var
 .cb{padding:18px}
 
 /* STATS */
-.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.sc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:15px 18px;box-shadow:var(--sh)}
-.slb{font-size:11px;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.sv{font-size:26px;font-weight:700;line-height:1}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.sc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:12px 14px;box-shadow:var(--sh);min-width:0}
+.slb{font-size:11px;color:var(--tx2);margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sv{font-size:22px;font-weight:700;line-height:1}
 .ss{font-size:11px;color:var(--tx3);margin-top:3px}
 .sdot{width:7px;height:7px;border-radius:50%}
 
@@ -311,6 +315,7 @@ textarea.fc{resize:vertical;min-height:70px}
       <div class="ni" data-pg="approval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>결재함<span class="nb" id="appr-n">0</span></div>
       <div class="ni" data-pg="distribution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>배포 관리</div>
       <div class="sb-sec">문서 관리</div>
+      <div class="ni" data-pg="workflow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v4"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="M12 12l-7 7"/><path d="M12 12l7 7"/></svg>업무흐름도</div>
       <div class="ni" data-pg="register"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>문서 등록</div>
       <div class="ni" data-pg="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="15" y2="14"/></svg>개정 이력</div>
       <div class="sb-sec sb-adm" style="display:none">관리자</div>
@@ -407,16 +412,48 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 const ROLE_LABELS = {admin:'관리자',approver:'승인자',reviewer:'검토자',writer:'작성자',viewer:'열람자'};
 const ROLE_LEVELS = {admin:'M',approver:'D',reviewer:'C',writer:'B',viewer:'A'};
 const ROLE_PERMS  = {
-  admin:    ['dashboard','documents','approval','distribution','register','history','users','audit'],
-  approver: ['dashboard','documents','approval','distribution','register','history'],
-  reviewer: ['dashboard','documents','approval','register','history'],
-  writer:   ['dashboard','documents','register','history'],
-  viewer:   ['dashboard','documents','history']
+  admin:    ['dashboard','documents','approval','distribution','register','history','users','audit','workflow'],
+  approver: ['dashboard','documents','approval','distribution','register','history','workflow'],
+  reviewer: ['dashboard','documents','approval','register','history','workflow'],
+  writer:   ['dashboard','documents','register','history','workflow'],
+  viewer:   ['dashboard','documents','history','workflow']
 };
+// 6단계 워크플로우 단계 정의
+const WF_STEPS=[
+  {key:'draft',       label:'임시저장',       color:'#94a3b8'},
+  {key:'review1',     label:'1차검토',         color:'#8b5cf6'},
+  {key:'review2',     label:'2차검토',         color:'#7c3aed'},
+  {key:'std_review',  label:'표준관리검토',    color:'#d97706'},
+  {key:'group_review',label:'유관그룹장검토',  color:'#0891b2'},
+  {key:'pending',     label:'승인대기',        color:'#f59e0b'},
+  {key:'distributed', label:'배포완료',        color:'#059669'},
+];
+function wfProgress(status){
+  const idx=WF_STEPS.findIndex(s=>s.key===status);
+  return WF_STEPS.map((s,i)=>`<div style="display:flex;align-items:center;gap:3px;flex:1;min-width:0">
+    <div style="width:22px;height:22px;border-radius:50%;background:${i<=idx?s.color:'#e2e8f0'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#fff;font-weight:700">${i<idx?'✓':i===idx?'◉':'○'}</div>
+    <div style="font-size:9px;color:${i<=idx?s.color:'#94a3b8'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.label}</div>
+    ${i<WF_STEPS.length-1?`<div style="flex:1;height:2px;background:${i<idx?s.color:'#e2e8f0'};margin:0 2px;min-width:4px"></div>`:''}
+  </div>`).join('');
+}
 function hasPerm(pg){ return (ROLE_PERMS[CU?.role]||[]).includes(pg); }
 
 function sbadge(s){
-  const m={draft:['s-draft','임시저장'],review:['s-review','검토요청'],dept_review:['s-dept_review','유관부서검토'],revision:['s-revision','보완요청'],pending:['s-pending','승인대기'],approved:['s-approved','승인완료'],distributed:['s-distributed','배포완료'],obsolete:['s-obsolete','폐지']};
+  const m={
+    draft:        ['s-draft','임시저장'],
+    review1:      ['s-rev1','1차검토중'],
+    review2:      ['s-rev2','2차검토중'],
+    std_review:   ['s-std','표준검토중'],
+    group_review: ['s-grp','유관검토중'],
+    revision:     ['s-revision','보완요청'],
+    pending:      ['s-pending','승인대기'],
+    approved:     ['s-approved','승인완료'],
+    distributed:  ['s-distributed','배포완료'],
+    obsolete:     ['s-obsolete','폐지'],
+    // 레거시 호환
+    review:       ['s-rev1','검토중'],
+    dept_review:  ['s-grp','유관검토중'],
+  };
   const [c,l]=m[s]||['s-draft',s]; return `<span class="badge ${c}"><span class="bd0"></span>${l}</span>`;
 }
 function tbadge(t){
@@ -571,7 +608,7 @@ function startApp(){
 // ────────────────────────────────────────
 //  네비게이션
 // ────────────────────────────────────────
-const pgTitles={dashboard:'대시보드',documents:'문서 목록',approval:'결재함',distribution:'배포 관리',register:'문서 등록',history:'개정 이력',users:'사용자 관리',audit:'감사 로그'};
+const pgTitles={dashboard:'대시보드',documents:'문서 목록',approval:'결재함',distribution:'배포 관리',register:'문서 등록',history:'개정 이력',users:'사용자 관리',audit:'감사 로그',workflow:'업무 흐름도'};
 
 function applyMenuPermissions(){
   document.querySelectorAll('.ni[data-pg]').forEach(el=>{
@@ -587,7 +624,7 @@ function goto(pg){
   document.querySelectorAll('.ni').forEach(i=>i.classList.remove('on'));
   const ni=document.querySelector(`.ni[data-pg="${pg}"]`); if(ni) ni.classList.add('on');
   document.getElementById('pg-title').textContent=pgTitles[pg]||pg;
-  const renders={dashboard:renderDash,documents:renderDocs,approval:renderApproval,distribution:renderDist,register:renderRegister,history:renderHistory,users:renderUsers,audit:renderAudit};
+  const renders={dashboard:renderDash,documents:renderDocs,approval:renderApproval,distribution:renderDist,register:renderRegister,history:renderHistory,users:renderUsers,audit:renderAudit,workflow:renderWorkflow};
   if(renders[pg]) renders[pg]();
 }
 function onSearch(v){ srchQ=v; if(curPg==='documents') renderDocs(); }
@@ -659,11 +696,8 @@ async function quickApprove(apprId){
   try{
     const a=await dbGet('approvals',{eq:{id:apprId}}); if(!a[0]) return;
     const doc=await dbGet('documents',{eq:{id:a[0].doc_id}}); if(!doc[0]) return;
-    await dbUpdate('approvals',apprId,{status:'approved',approver_id:CU.id,decided_at:new Date().toISOString()});
-    await dbUpdate('documents',a[0].doc_id,{status:'approved',updated_at:new Date().toISOString()});
-    await addNotif(a[0].requester_id,`승인 완료: ${doc[0].title}`,`${doc[0].doc_no} 문서가 승인되었습니다.`,'success');
-    await addAudit('APPROVE',doc[0].doc_no,doc[0].title);
-    refreshBadge(); toast('승인되었습니다.','tok'); renderDash();
+    await approveStep(apprId,a[0].doc_id,doc[0].status);
+    renderDash();
   }catch(e){ toast('오류: '+e.message,'terr'); }
 }
 
@@ -696,7 +730,7 @@ function renderDocList(userMap){
   <div class="ll">
     <div class="lm">
       <div class="fbar">
-        ${[['all','전체'],['proc','절차서'],['guide','지침서'],['form','서식'],['std','표준서'],['distributed','배포완료'],['pending','승인대기'],['draft','임시저장'],['review','검토중']].map(([k,v])=>
+        ${[['all','전체'],['proc','절차서'],['guide','지침서'],['form','서식'],['std','표준서'],['distributed','배포완료'],['pending','승인대기'],['draft','임시저장'],['review1','1차검토'],['review2','2차검토'],['std_review','표준검토'],['group_review','유관검토']].map(([k,v])=>
           `<span class="chip${filt===k?' on':''}" onclick="setFilt('${k}')">${v}</span>`).join('')}
         <span style="margin-left:auto;font-size:12px;color:var(--tx3)">총 ${docs.length}건</span>
       </div>
@@ -788,23 +822,79 @@ async function renderDP(id,userMap){
       </div>
       <div class="dpb">${curTab==='info'?infoH:curTab==='hist'?histH:distH}</div>
       <div class="dpf">
-        ${canSubmit?`<button class="btn bp bsm" style="flex:1" onclick="submitDoc(${d.id})">결재 상신</button>`:''}
-        ${canDist?`<button class="btn bp bsm" style="flex:1" onclick="showDistMo(${d.id})">배포</button>`:''}
-        ${canRevise?`<button class="btn bs bsm" style="flex:1" onclick="showReviseMo(${d.id})">개정 신청</button>`:''}
+        ${d.status==='draft'&&CU.role!=='viewer'?`<button class="btn bp bsm" style="flex:1" onclick="submitDoc(${d.id})">📤 1차 검토 요청</button>`:''}
+        ${canDist?`<button class="btn bp bsm" style="flex:1" onclick="showDistMo(${d.id})">📢 배포</button>`:''}
+        ${canRevise?`<button class="btn bs bsm" style="flex:1" onclick="showReviseMo(${d.id})">🔄 개정 신청</button>`:''}
+        ${CU.role==='admin'?`<button class="btn bd bsm" onclick="showDeleteDocMo(${d.id},'${esc(d.title)}')">🗑 문서 삭제</button>`:''}
       </div>
     </div>`;
   }catch(e){ dpArea.innerHTML=`<div class="dp"><div style="padding:20px;color:var(--er)">오류: ${esc(e.message)}</div></div>`; }
 }
 
+function showDeleteDocMo(id,title){
+  openMo('문서 삭제',
+    `<div style="background:var(--er-bg);color:var(--er-tx);padding:14px;border-radius:var(--r);border-left:3px solid var(--er)">
+      <b>${esc(title)}</b> 문서를 삭제합니다.<br><br>
+      관련 결재·배포·이력이 모두 삭제되며 복구할 수 없습니다.
+    </div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bd" onclick="deleteDoc(${id})">삭제</button>`);
+}
+async function deleteDoc(id){
+  try{
+    await sb.from('approvals').delete().eq('doc_id',id);
+    await sb.from('distributions').delete().eq('doc_id',id);
+    await sb.from('revisions').delete().eq('doc_id',id);
+    const [doc]=await dbGet('documents',{eq:{id}});
+    await dbDelete('documents',id);
+    await addAudit('DELETE_DOC',doc?.doc_no||'',doc?.title||'');
+    closeMo(); selDocId=null; toast('문서가 삭제되었습니다.','tok'); renderDocs();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+// ── 6단계 워크플로우 핵심 함수 ──
 async function submitDoc(docId){
+  // 1단계→2단계: 1차 검토 요청 (작성자 부서 팀장에게 알림)
   try{
     const [doc]=await dbGet('documents',{eq:{id:docId}});
-    await dbUpdate('documents',docId,{status:'review',updated_at:new Date().toISOString()});
-    const [apprUser]=await dbGet('users',{in:{role:['approver','admin']}});
-    await dbInsert('approvals',{doc_id:docId,requester_id:CU.id,approver_id:apprUser?.id,action_type:'new',status:'pending'});
-    if(apprUser) await addNotif(apprUser.id,`결재 요청: ${doc.title}`,`${doc.doc_no} 결재가 요청되었습니다.`,'warning');
-    await addAudit('SUBMIT_DOC',doc.doc_no,doc.title);
-    refreshBadge(); toast('결재 상신이 완료되었습니다.','tok'); selDocId=null; renderDocs();
+    await dbUpdate('documents',docId,{status:'review1',updated_at:new Date().toISOString()});
+    // 같은 부서 검토자/관리자에게 알림 (팀장 역할)
+    const reviewers=await dbGet('users',{eq:{dept:CU.dept,status:'active'}});
+    const targets=reviewers.filter(u=>['reviewer','approver','admin'].includes(u.role)&&u.id!==CU.id);
+    for(const t of targets)
+      await addNotif(t.id,`[1차검토 요청] ${doc.title}`,`${doc.doc_no} 문서의 1차 검토를 요청드립니다.`,'warning');
+    await dbInsert('approvals',{doc_id:docId,requester_id:CU.id,approver_id:targets[0]?.id||CU.id,action_type:'new',status:'pending',step:'review1'});
+    await addAudit('SUBMIT_DOC',doc.doc_no,'1차검토 요청');
+    refreshBadge(); toast('1차 검토 요청이 완료되었습니다. 부서 팀장에게 알림이 발송됩니다.','tok'); selDocId=null; renderDocs();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+async function advanceWorkflow(docId, nextStatus, notifRole, notifMsg, stepLabel){
+  try{
+    const [doc]=await dbGet('documents',{eq:{id:docId}});
+    await dbUpdate('documents',docId,{status:nextStatus,updated_at:new Date().toISOString()});
+    // 대상 역할 사용자에게 알림
+    const targets=await dbGet('users',{eq:{status:'active'}});
+    const notifTargets=targets.filter(u=>notifRole.includes(u.role)&&u.id!==CU.id);
+    for(const t of notifTargets)
+      await addNotif(t.id,`[${stepLabel}] ${doc.title}`,`${doc.doc_no} ${notifMsg}`,'warning');
+    await addAudit('WORKFLOW_ADV',doc.doc_no,`→ ${nextStatus}`);
+    return doc;
+  }catch(e){ toast('오류: '+e.message,'terr'); throw e; }
+}
+
+async function approveStep(apprId, docId, currentStatus){
+  // 현재 단계 → 다음 단계 자동 진행
+  const flow={
+    review1:      {next:'review2',     roles:['reviewer','approver','admin'], msg:'2차 검토를 요청드립니다.',      label:'2차검토 요청'},
+    review2:      {next:'std_review',  roles:['reviewer','approver','admin'], msg:'사내표준관리 검토를 요청드립니다.',label:'표준관리 검토요청'},
+    std_review:   {next:'group_review',roles:['reviewer','approver','admin'], msg:'유관부서 그룹장 검토를 요청드립니다.',label:'유관검토 요청'},
+    group_review: {next:'pending',     roles:['approver','admin'],            msg:'최종 승인을 요청드립니다.',       label:'최종승인 요청'},
+  };
+  const step=flow[currentStatus];
+  if(!step){ toast('진행할 수 없는 단계입니다.','terr'); return; }
+  try{
+    await dbUpdate('approvals',apprId,{status:'approved',approver_id:CU.id,decided_at:new Date().toISOString()});
+    await advanceWorkflow(docId,step.next,step.roles,step.msg,step.label);
+    refreshBadge(); toast(`승인 완료. ${step.label} 알림이 발송됩니다.`,'tok'); renderApproval();
   }catch(e){ toast('오류: '+e.message,'terr'); }
 }
 
@@ -889,46 +979,235 @@ function renderApprovalList(all,userMap,docMap){
   const list=apprFilt==='pending'?all.filter(a=>a.status==='pending'):all;
   const el=document.getElementById('appr-list'); if(!el) return;
   const stMap={pending:'s-pending',approved:'s-approved',rejected:'s-obsolete'};
-  const stLabel={pending:'대기 중',approved:'승인',rejected:'반려'};
+  const stLabel={pending:'대기 중',approved:'승인완료',rejected:'반려'};
+  // 현재 단계 라벨
+  const stepLabel={review1:'1차검토',review2:'2차검토',std_review:'표준관리검토',group_review:'유관그룹장검토',pending:'최종승인대기'};
+  // 역할별 처리 가능 단계
+  const canHandle=(a,doc)=>{
+    if(!doc||a.status!=='pending') return false;
+    const s=doc.status;
+    if(CU.role==='admin') return true;
+    if(CU.role==='approver') return ['group_review','pending','std_review'].includes(s);
+    if(CU.role==='reviewer') return ['review1','review2','std_review','group_review'].includes(s);
+    return false;
+  };
   el.innerHTML=list.length===0?`<div class="card" style="border-radius:0 0 var(--rl) var(--rl)"><div class="empty"><p>결재 건이 없습니다</p></div></div>`:
     list.map(a=>{
       const d=docMap[a.doc_id]; const req=userMap[a.requester_id];
+      const curStep=stepLabel[d?.status]||d?.status||'-';
+      const isAI=d?.status==='std_review';
       return `<div class="card" style="margin-bottom:12px">
-        <div class="ch">
-          <div>
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="ch" style="gap:12px">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
               <span class="mono">${esc(d?.doc_no||'-')}</span>
               <span style="font-size:14px;font-weight:700">${esc(d?.title||'-')}</span>
               ${d?tbadge(d.doc_type):''}
               <span class="badge ${stMap[a.status]||'s-draft'}">${stLabel[a.status]||a.status}</span>
-              <span class="badge s-draft">${a.action_type==='new'?'신규제정':'개정'}</span>
+              ${d?sbadge(d.status):''}
             </div>
-            <div style="font-size:12px;color:var(--tx3);margin-top:3px">상신: ${esc(req?.name||'-')} (${esc(req?.dept||'-')}) · ${(a.created_at||'').slice(0,10)}${a.comment?` · 사유: ${esc(a.comment)}`:''}</div>
+            <div style="font-size:12px;color:var(--tx3)">상신: ${esc(req?.name||'-')} (${esc(req?.dept||'-')}) · ${(a.created_at||'').slice(0,10)}${a.comment?` · ${esc(a.comment)}`:''}</div>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px">${wfProgress(d?.status||'draft')}</div>
           </div>
-          ${a.status==='pending'&&(CU.role==='admin'||CU.role==='approver')?`
-          <div style="display:flex;gap:6px">
-            <button class="btn bk" onclick="approveItem(${a.id},${JSON.stringify(all)},${JSON.stringify(userMap)},${JSON.stringify(docMap)})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>승인</button>
-            <button class="btn bd" onclick="showRejectMo(${a.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>반려</button>
-          </div>`:''}
-        </div>
-        <div class="cb" style="padding-top:10px">
-          <div class="wf">
-            ${['초안 작성','검토 요청','유관부서 검토','보완 및 승인','배포'].map((s,i)=>`<div class="wfs"><div class="wfc${i<3?' done':i===3?' cur':''}">${i<3?'✓':i===3?'◉':'○'}</div><div class="wfl">${s}</div></div>`).join('')}
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            ${canHandle(a,d)?`
+              ${isAI?`<button class="btn" style="background:#7c3aed;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer" onclick="showAIReview(${a.id},${d.id})">🤖 AI 검토</button>`:''}
+              ${d?.status==='group_review'?`<button class="btn bk bsm" onclick="showGroupReviewMo(${a.id},${d.id})">💬 그룹장 검토</button>`:''}
+              <button class="btn bk bsm" onclick="approveStep(${a.id},${d.id},'${d?.status}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>승인</button>
+              <button class="btn bd bsm" onclick="showRejectMo(${a.id})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>반려</button>
+            `:''}
+            ${d?.status==='pending'&&(CU.role==='admin'||CU.role==='approver')?`<button class="btn bk bsm" onclick="finalApprove(${a.id},${d.id})">✅ 최종 승인</button>`:''}
           </div>
         </div>
       </div>`;}).join('');
 }
 
-async function approveItem(apprId){
+async function approveItem(apprId){ await finalApprove(apprId); }
+
+async function finalApprove(apprId, docId){
+  // 최종 임원 승인 (pending → approved)
   try{
     const [a]=await dbGet('approvals',{eq:{id:apprId}});
-    const [doc]=await dbGet('documents',{eq:{id:a.doc_id}});
+    const [doc]=await dbGet('documents',{eq:{id:a.doc_id||(docId)}});
     await dbUpdate('approvals',apprId,{status:'approved',approver_id:CU.id,decided_at:new Date().toISOString()});
-    await dbUpdate('documents',a.doc_id,{status:'approved',updated_at:new Date().toISOString()});
-    await addNotif(a.requester_id,`승인 완료: ${doc.title}`,`${doc.doc_no} 문서가 승인되었습니다.`,'success');
-    await addAudit('APPROVE',doc.doc_no,doc.title);
-    refreshBadge(); toast('승인되었습니다.','tok'); renderApproval();
+    await dbUpdate('documents',a.doc_id||(docId),{status:'approved',updated_at:new Date().toISOString()});
+    await addNotif(a.requester_id,`최종 승인 완료: ${doc?.title}`,`${doc?.doc_no} 문서가 최종 승인되었습니다.`,'success');
+    await addAudit('APPROVE',doc?.doc_no,doc?.title);
+    refreshBadge(); toast('최종 승인 완료. 이제 배포 처리가 가능합니다.','tok'); renderApproval();
   }catch(e){ toast('오류: '+e.message,'terr'); }
+}
+
+// AI 검토 모달 (사내표준관리 단계)
+function showAIReview(apprId, docId){
+  const moBody=`
+    <div style="background:#f5f3ff;border-radius:8px;padding:14px;margin-bottom:14px;border-left:4px solid #7c3aed">
+      <div style="font-size:13px;font-weight:700;color:#5b21b6;margin-bottom:6px">🤖 AI 문서 검토 (Claude AI)</div>
+      <div style="font-size:12px;color:#6d28d9">아래 항목을 자동 분석합니다. 문서 내용(파일)이 첨부되어 있을 때 더 정확한 결과를 제공합니다.</div>
+    </div>
+    <div id="ai-result" style="min-height:200px;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13px">
+      <div>
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:28px;margin-bottom:8px">🤖</div>
+          <div style="font-weight:600;margin-bottom:4px">AI 검토 준비 완료</div>
+          <div style="font-size:12px;color:var(--tx3)">문서 정보를 기반으로 5가지 항목을 분석합니다</div>
+        </div>
+        <button class="btn" style="background:#7c3aed;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;width:100%" onclick="runAIReview(${docId})">
+          🔍 AI 검토 실행
+        </button>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">검토 의견 (선택)</label>
+      <textarea id="ai-comment" class="fc" rows="2" placeholder="추가 의견이 있으면 입력하세요..."></textarea>
+    </div>`;
+  openMo('🤖 AI 문서 자동 검토', moBody,
+    `<button class="btn bs" onclick="closeMo()">닫기</button>
+     <button class="btn bk" onclick="approveStep(${apprId},${docId},'std_review')">검토 완료 후 승인</button>
+     <button class="btn bd" onclick="showRejectMo(${apprId})">보완 요청</button>`);
+}
+
+async function runAIReview(docId){
+  const [doc]=await dbGet('documents',{eq:{id:docId}});
+  const el=document.getElementById('ai-result');
+  if(!el) return;
+  el.innerHTML=`<div style="text-align:center;padding:20px"><div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:#ede9fe;border-top-color:#7c3aed;margin:0 auto 12px"></div><div style="font-size:13px;color:#7c3aed;font-weight:600">AI 분석 중...</div><div style="font-size:12px;color:var(--tx3);margin-top:4px">ISO 9001 기준으로 문서를 검토하고 있습니다</div></div>`;
+  try{
+    const prompt=`당신은 ISO 9001:2015 기반 사내표준 문서 전문 검토자입니다. 반도체 메모리 핸들러 제조회사 테크윙의 문서를 검토합니다.
+
+다음 문서 정보를 바탕으로 5가지 항목을 검토해주세요:
+
+문서명: ${doc?.title||'제목 없음'}
+문서번호: ${doc?.doc_no||'-'}
+유형: ${doc?.doc_type||'-'} (절차서/지침서/서식/표준서)
+소관부서: ${doc?.dept||'-'}
+버전: ${doc?.version||'-'}
+
+아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
+{
+  "typo": {"issues": ["지적사항1","지적사항2"], "suggestions": ["수정제안1","수정제안2"]},
+  "flow": {"issues": ["흐름 불일치 사항"], "suggestions": ["수정 제안"]},
+  "iso": {"issues": ["ISO 미충족 항목"], "suggestions": ["개선 제안"]},
+  "authority": {"issues": ["책임/권한 검토사항"], "suggestions": ["개선 제안"]},
+  "sample": {"title": "모범 문서 구조 제안", "content": "목적, 범위, 용어정의, 책임과권한, 절차 순서로 구성 권장"}
+}`;
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const raw=data.content?.find(b=>b.type==='text')?.text||'{}';
+    let r; try{ r=JSON.parse(raw.replace(/```json|```/g,'').trim()); }catch{ r=null; }
+    if(!r){ el.innerHTML=`<div style="color:var(--er);padding:12px">AI 응답 파싱 오류. 수동으로 검토해 주세요.</div>`; return; }
+    const section=(title,icon,color,data)=>data.issues?.length?`
+      <div style="border:1px solid ${color}22;border-radius:8px;padding:12px;margin-bottom:10px;background:${color}08">
+        <div style="font-size:12px;font-weight:700;color:${color};margin-bottom:8px">${icon} ${title}</div>
+        ${data.issues.map((iss,i)=>`
+          <div style="margin-bottom:8px">
+            <div style="font-size:12px;color:var(--tx);margin-bottom:3px">⚠️ ${iss}</div>
+            ${data.suggestions?.[i]?`<div style="font-size:11px;color:#059669;padding:4px 8px;background:#f0fdf4;border-radius:4px">✅ 제안: ${data.suggestions[i]}</div>`:''}
+          </div>`).join('')}
+      </div>`:'';
+    el.innerHTML=`
+      <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <span style="width:20px;height:20px;background:#7c3aed;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px">AI</span>
+        검토 완료 — ${new Date().toLocaleString('ko-KR',{hour12:false}).slice(0,16)}
+      </div>
+      ${section('오타·잘못 기재','①','#dc2626',r.typo||{})}
+      ${section('업무 흐름 불일치','②','#d97706',r.flow||{})}
+      ${section('ISO 9001 미충족','③','#7c3aed',r.iso||{})}
+      ${section('책임·권한 검토사항','④','#0891b2',r.authority||{})}
+      ${r.sample?`<div style="border:1px solid #05966922;border-radius:8px;padding:12px;background:#f0fdf4">
+        <div style="font-size:12px;font-weight:700;color:#059669;margin-bottom:6px">⑤ ${r.sample.title||'모범 답안 제안'}</div>
+        <div style="font-size:12px;color:var(--tx2)">${r.sample.content||''}</div>
+      </div>`:''}`;
+  }catch(e){ el.innerHTML=`<div style="color:var(--er);padding:12px;font-size:12px">AI 연결 오류: ${e.message}<br><br>수동으로 검토 후 승인 처리해 주세요.</div>`; }
+}
+
+// 그룹장 실시간 댓글 검토 모달
+async function showGroupReviewMo(apprId, docId){
+  const [doc]=await dbGet('documents',{eq:{id:docId}});
+  const allUsers=await dbGet('users',{eq:{status:'active'}});
+  // 검토자/승인자/관리자 = 그룹장 대상
+  const reviewers=allUsers.filter(u=>['reviewer','approver','admin'].includes(u.role));
+  // 기존 댓글 로드 (audit_log에서 GROUP_COMMENT 액션)
+  const comments=await dbGet('audit_log',{order:{col:'created_at',asc:true}});
+  const docComments=comments.filter(c=>c.action==='GROUP_COMMENT'&&c.target===String(docId));
+  const confirmed=comments.filter(c=>c.action==='GROUP_CONFIRM'&&c.target===String(docId)).map(c=>Number(c.user_id));
+  const userMap=Object.fromEntries(allUsers.map(u=>[u.id,u]));
+  
+  const commentHTML=docComments.length===0
+    ?'<div style="text-align:center;padding:16px;color:var(--tx3);font-size:12px">아직 댓글이 없습니다</div>'
+    :docComments.map(c=>{
+      const u=userMap[c.user_id];
+      return `<div style="padding:10px 14px;border-bottom:1px solid var(--bdr)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="width:24px;height:24px;border-radius:50%;background:var(--in-bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--in-tx)">${(u?.name||'?')[0]}</div>
+          <span style="font-size:12px;font-weight:600">${u?.name||'알 수 없음'}</span>
+          <span style="font-size:11px;color:var(--tx3)">${(c.created_at||'').slice(0,16)}</span>
+        </div>
+        <div style="font-size:13px;color:var(--tx);padding-left:32px">${esc(c.detail||'')}</div>
+      </div>`;}).join('');
+
+  const confirmedHTML=reviewers.map(u=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:${confirmed.includes(u.id)?'#f0fdf4':'#f9fafb'};border-radius:6px;margin-bottom:5px">
+      <div style="width:22px;height:22px;border-radius:50%;background:${confirmed.includes(u.id)?'#059669':'#e5e7eb'};display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700">${confirmed.includes(u.id)?'✓':u.name[0]}</div>
+      <span style="font-size:12px;font-weight:600">${u.name}</span>
+      <span style="font-size:11px;color:var(--tx3)">${u.dept}</span>
+      <span style="margin-left:auto;font-size:11px;${confirmed.includes(u.id)?'color:#059669;font-weight:700':'color:var(--tx3)'}">${confirmed.includes(u.id)?'✅ 검토완료':'⏳ 검토중'}</span>
+    </div>`).join('');
+
+  openMo('💬 유관 그룹장 실시간 검토', `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:320px">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:8px">그룹장 검토 현황 (${confirmed.length}/${reviewers.length})</div>
+        ${confirmedHTML}
+        ${!confirmed.includes(CU.id)?`<button class="btn bk" style="width:100%;margin-top:10px;justify-content:center" onclick="confirmGroupReview(${docId})">✅ 내 검토 완료 확인</button>`:'<div style="text-align:center;font-size:12px;color:#059669;margin-top:10px;font-weight:700">✅ 검토 완료됨</div>'}
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:8px">실시간 댓글</div>
+        <div id="gr-comments" style="flex:1;overflow-y:auto;border:1px solid var(--bdr);border-radius:8px;max-height:200px">${commentHTML}</div>
+        <div style="margin-top:8px;display:flex;gap:6px">
+          <input type="text" id="gr-input" class="fc" placeholder="댓글 입력..." style="flex:1;padding:8px 10px">
+          <button class="btn bp bsm" onclick="postGroupComment(${docId})">전송</button>
+        </div>
+      </div>
+    </div>`,
+    `<button class="btn bs" onclick="closeMo()">닫기</button>
+     ${confirmed.length>=reviewers.length?`<button class="btn bk" onclick="approveStep(${apprId},${docId},'group_review')">전원완료 → 승인대기 이동</button>`:''}`);
+}
+
+async function postGroupComment(docId){
+  const inp=document.getElementById('gr-input');
+  const txt=inp?.value?.trim();
+  if(!txt){ toast('댓글을 입력하세요.','terr'); return; }
+  await addAudit('GROUP_COMMENT',String(docId),txt);
+  inp.value='';
+  toast('댓글이 등록되었습니다.','tok');
+  // 댓글 영역 새로고침
+  const allLogs=await dbGet('audit_log',{order:{col:'created_at',asc:true}});
+  const allUsers=await dbGet('users');
+  const userMap=Object.fromEntries(allUsers.map(u=>[u.id,u]));
+  const docComments=allLogs.filter(c=>c.action==='GROUP_COMMENT'&&c.target===String(docId));
+  const el=document.getElementById('gr-comments');
+  if(el) el.innerHTML=docComments.map(c=>{
+    const u=userMap[c.user_id];
+    return `<div style="padding:10px 14px;border-bottom:1px solid var(--bdr)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--in-bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--in-tx)">${(u?.name||'?')[0]}</div>
+        <span style="font-size:12px;font-weight:600">${u?.name||'알 수 없음'}</span>
+        <span style="font-size:11px;color:var(--tx3)">${(c.created_at||'').slice(0,16)}</span>
+      </div>
+      <div style="font-size:13px;color:var(--tx);padding-left:32px">${esc(c.detail||'')}</div>
+    </div>`;}).join('')||'<div style="text-align:center;padding:16px;color:var(--tx3);font-size:12px">댓글이 없습니다</div>';
+}
+
+async function confirmGroupReview(docId){
+  await addAudit('GROUP_CONFIRM',String(docId),`${CU.name} 검토완료`);
+  toast('검토 완료가 확인되었습니다.','tok');
+  // 모달 업데이트를 위해 재호출
+  const [appr]=await dbGet('approvals',{eq:{doc_id:docId,status:'pending'}});
+  if(appr) showGroupReviewMo(appr.id,docId);
 }
 
 function showRejectMo(apprId){
@@ -1122,8 +1401,41 @@ async function renderUsers(){
           <button class="btn bp" onclick="showAddUserMo()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>사용자 추가</button>
         </div>
       </div>
-      <div class="sg" style="margin-bottom:18px">
-        ${['admin','approver','reviewer','writer','viewer'].map(r=>`<div class="sc"><div class="slb">${rbadge(r)}</div><div class="sv" style="font-size:22px">${roleCount(r)}</div></div>`).join('')}
+      <div class="sg" style="margin-bottom:14px">
+        ${['admin','approver','reviewer','writer','viewer'].map(r=>`<div class="sc"><div class="slb">${rbadge(r)}</div><div class="sv">${roleCount(r)}</div></div>`).join('')}
+      </div>
+      <div class="card" style="margin-bottom:18px;padding:14px 18px">
+        <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:10px;letter-spacing:.03em">▪ 권한 Level 구분</div>
+        <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:var(--surf2)">
+            <th style="padding:7px 10px;text-align:left;border:1px solid var(--bdr);white-space:nowrap">Level</th>
+            <th style="padding:7px 10px;text-align:left;border:1px solid var(--bdr);white-space:nowrap">권한명</th>
+            <th style="padding:7px 10px;text-align:center;border:1px solid var(--bdr)">문서 등록</th>
+            <th style="padding:7px 10px;text-align:center;border:1px solid var(--bdr)">결재 처리</th>
+            <th style="padding:7px 10px;text-align:center;border:1px solid var(--bdr)">유관부서 검토</th>
+            <th style="padding:7px 10px;text-align:center;border:1px solid var(--bdr)">배포 관리</th>
+            <th style="padding:7px 10px;text-align:center;border:1px solid var(--bdr)">사용자 관리</th>
+            <th style="padding:7px 10px;text-align:center;border:1px solid var(--bdr)">감사 로그</th>
+          </tr></thead>
+          <tbody>
+            ${[
+              {r:'admin',   lv:'Level 5', reg:'✅',appr:'✅',rev:'✅',dist:'✅',usr:'✅',aud:'✅'},
+              {r:'approver',lv:'Level 4', reg:'✅',appr:'✅',rev:'✅',dist:'✅',usr:'❌',aud:'❌'},
+              {r:'reviewer',lv:'Level 3', reg:'✅',appr:'❌',rev:'✅',dist:'❌',usr:'❌',aud:'❌'},
+              {r:'writer',  lv:'Level 2', reg:'✅',appr:'❌',rev:'❌',dist:'❌',usr:'❌',aud:'❌'},
+              {r:'viewer',  lv:'Level 1', reg:'❌',appr:'❌',rev:'❌',dist:'❌',usr:'❌',aud:'❌'},
+            ].map(x=>`<tr>
+              <td style="padding:7px 10px;border:1px solid var(--bdr);font-weight:700;color:var(--tx2)">${x.lv}</td>
+              <td style="padding:7px 10px;border:1px solid var(--bdr)">${rbadge(x.r)}</td>
+              <td style="padding:7px 10px;border:1px solid var(--bdr);text-align:center">${x.reg}</td>
+              <td style="padding:7px 10px;border:1px solid var(--bdr);text-align:center">${x.appr}</td>
+              <td style="padding:7px 10px;border:1px solid var(--bdr);text-align:center">${x.rev}</td>
+              <td style="padding:7px 10px;border:1px solid var(--bdr);text-align:center">${x.dist}</td>
+              <td style="padding:7px 10px;border:1px solid var(--bdr);text-align:center">${x.usr}</td>
+              <td style="padding:7px 10px;border:1px solid var(--bdr);text-align:center">${x.aud}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>
       </div>
       <div class="card"><div class="tw">
         <table><thead><tr><th>이름</th><th>사번</th><th>부서</th><th>역할</th><th>아이디</th><th>이메일</th><th>최종로그인</th><th>상태</th><th></th></tr></thead>
@@ -1273,8 +1585,114 @@ async function submitSignup(){
 }
 
 // ────────────────────────────────────────
+// ────────────────────────────────────────
+//  업무 흐름도
+// ────────────────────────────────────────
+function renderWorkflow(){
+  document.getElementById('pc').innerHTML=`
+  <div class="page" style="overflow-y:auto">
+    <div class="ph">
+      <div><h1>업무 흐름도</h1><p>ISO 문서 관리 6단계 검토·승인 프로세스</p></div>
+      <a href="manual.html" target="_blank" class="btn bs bsm" style="text-decoration:none">📋 상세 매뉴얼 보기</a>
+    </div>
+
+    <!-- 전체 흐름 시각화 -->
+    <div class="card" style="margin-bottom:20px;padding:24px">
+      <div class="ch" style="margin-bottom:20px"><div class="ct">전체 문서 검토·승인 흐름</div></div>
+      <div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:8px">
+        ${[
+          {n:1,s:'draft',       l:'문서 작성',         who:'각 부서 담당자',    col:'#3b82f6', bg:'#eff6ff'},
+          {n:2,s:'review1',     l:'1차 검토',           who:'작성자 부서 팀장',  col:'#8b5cf6', bg:'#f5f3ff'},
+          {n:3,s:'review2',     l:'2차 검토',           who:'작성자 부서 그룹장',col:'#7c3aed', bg:'#ede9fe'},
+          {n:4,s:'std_review',  l:'사내표준관리 검토',  who:'사내표준관리 담당+AI',col:'#d97706',bg:'#fffbeb'},
+          {n:5,s:'group_review',l:'유관 그룹장 검토',   who:'관련부서 그룹장',   col:'#0891b2', bg:'#ecfeff'},
+          {n:6,s:'pending',     l:'최종 승인·배포',     who:'총괄 임원',         col:'#059669', bg:'#f0fdf4'},
+        ].map((s,i,arr)=>`
+          <div style="flex:1;min-width:130px;background:${s.bg};border:2px solid ${s.col};border-radius:12px;padding:16px 12px;text-align:center;position:relative">
+            <div style="width:30px;height:30px;border-radius:50%;background:${s.col};color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">${s.n}</div>
+            <div style="font-size:12px;font-weight:700;color:${s.col};margin-bottom:4px">${s.l}</div>
+            <div style="font-size:10px;color:#64748b;line-height:1.4">${s.who}</div>
+            ${i<arr.length-1?`<div style="position:absolute;right:-14px;top:50%;transform:translateY(-50%);font-size:20px;color:#94a3b8;z-index:2">→</div>`:''}
+          </div>`).join('<div style="width:28px;flex-shrink:0"></div>')}
+      </div>
+    </div>
+
+    <!-- 단계별 카드 -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:20px">
+      ${[
+        {n:1,col:'#3b82f6',bg:'#eff6ff',title:'📝 1단계: 문서 작성',who:'각 부서 관련 담당자',system:'사내 표준 템플릿 작성 후 DMS 문서 등록',auto:'작성 완료 → 1차 검토 요청 버튼으로 팀장에게 자동 알림',items:['사내 표준 템플릿 양식 준수','목적/범위/책임 명시','파일 첨부 (PDF/DOCX)','검토 요청 전 AI 사전 검토 권장']},
+        {n:2,col:'#8b5cf6',bg:'#f5f3ff',title:'👤 2단계: 1차 검토 (팀장)',who:'작성자 부서 팀장',system:'1차 검토 요청 시 팀장에게 자동 알림 발생',auto:'팀장 승인 → 그룹장에게 자동 2차 검토 알림',items:['내용 정확성 검토','업무 흐름 일치 여부','양식 준수 확인','보완 요청 시 사유 입력 필수']},
+        {n:3,col:'#7c3aed',bg:'#ede9fe',title:'👥 3단계: 2차 검토 (그룹장)',who:'작성자 부서 그룹장',system:'팀장 검토 후 그룹장에게 자동 알림 발생',auto:'그룹장 승인 → 사내표준관리 담당자에게 자동 알림',items:['부서 전략 방향 일치','타 부서 연계 적합성','ISO 요건 사전 확인','책임/권한 적절성']},
+        {n:4,col:'#d97706',bg:'#fffbeb',title:'🤖 4단계: 사내표준관리 검토 + AI',who:'사내표준관리 담당자',system:'AI 검토 버튼으로 5가지 항목 자동 분석',auto:'AI: 오타/흐름/ISO/책임권한/모범답안 자동 검출',items:['AI 검토 실행 → 결과 확인','① 오타·잘못 기재 검출','② 업무 흐름 불일치 검출','③ ISO 규정 적합성 검출','④ 모범 답안 제안','⑤ 책임·권한 검토 정리']},
+        {n:5,col:'#0891b2',bg:'#ecfeff',title:'💬 5단계: 유관 그룹장 검토',who:'관련 부서 그룹장',system:'실시간 댓글 방식 협업 검토',auto:'전원 검토 완료 → 임원에게 자동 알림',items:['실시간 댓글로 의견 제시','검토 완료 확인 버튼 클릭','타 그룹장 댓글 실시간 확인','미완료자 독촉 알림 발송 가능']},
+        {n:6,col:'#059669',bg:'#f0fdf4',title:'✅ 6단계: 최종 승인 · 배포',who:'총괄 임원',system:'그룹웨어 연동 결재 또는 DMS 직접 승인',auto:'최종 승인 → 배포 대상 전 직원 자동 알림',items:['그룹웨어 결재함에서 승인','또는 DMS 결재함 직접 승인','배포 대상 부서 선택','구버전 자동 폐지 처리']},
+      ].map(s=>`
+        <div class="card" style="border-left:4px solid ${s.col}">
+          <div class="ch" style="margin-bottom:10px">
+            <div style="font-size:13px;font-weight:800;color:${s.col}">${s.title}</div>
+          </div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">
+            <span style="background:${s.bg};color:${s.col};padding:2px 8px;border-radius:99px;font-weight:600">👤 ${s.who}</span>
+          </div>
+          <div style="font-size:11px;background:${s.bg};border-radius:6px;padding:8px 10px;margin-bottom:8px">
+            <span style="font-weight:700;color:${s.col}">시스템: </span>${s.system}
+          </div>
+          <div style="font-size:11px;background:#f0fdf4;border-radius:6px;padding:8px 10px;margin-bottom:10px;border-left:3px solid #059669">
+            <span style="font-weight:700;color:#059669">자동처리: </span>${s.auto}
+          </div>
+          <ul style="padding-left:14px">
+            ${s.items.map(i=>`<li style="font-size:12px;color:var(--tx2);margin-bottom:4px">${i}</li>`).join('')}
+          </ul>
+        </div>`).join('')}
+    </div>
+
+    <!-- 상태 흐름표 -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="ch"><div class="ct">문서 상태 변경 흐름</div></div>
+      <div class="cb" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:600px">
+          <thead><tr style="background:var(--surf2)">
+            <th style="padding:9px 12px;text-align:left;border:1px solid var(--bdr)">현재 상태</th>
+            <th style="padding:9px 12px;border:1px solid var(--bdr)">승인 시</th>
+            <th style="padding:9px 12px;border:1px solid var(--bdr)">보완 요청 시</th>
+            <th style="padding:9px 12px;text-align:left;border:1px solid var(--bdr)">알림 대상</th>
+          </tr></thead>
+          <tbody>
+            ${[
+              {from:'임시저장',approve:'1차검토중',reject:'-',notify:'부서 팀장'},
+              {from:'1차검토중',approve:'2차검토중',reject:'보완요청',notify:'부서 그룹장'},
+              {from:'2차검토중',approve:'표준검토중',reject:'보완요청',notify:'사내표준관리 담당자'},
+              {from:'표준검토중',approve:'유관검토중',reject:'보완요청',notify:'유관 부서 그룹장 전원'},
+              {from:'유관검토중',approve:'승인대기',reject:'보완요청',notify:'총괄 임원'},
+              {from:'승인대기',approve:'배포완료',reject:'보완요청',notify:'배포 대상 전 직원'},
+            ].map(r=>`<tr>
+              <td style="padding:9px 12px;border:1px solid var(--bdr);font-weight:600">${r.from}</td>
+              <td style="padding:9px 12px;border:1px solid var(--bdr);text-align:center;color:#059669;font-weight:600">→ ${r.approve}</td>
+              <td style="padding:9px 12px;border:1px solid var(--bdr);text-align:center;color:#dc2626">${r.reject}</td>
+              <td style="padding:9px 12px;border:1px solid var(--bdr);color:var(--tx2)">${r.notify}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
 //  감사 로그
 // ────────────────────────────────────────
+function confirmClearAudit(){
+  openMo('감사 로그 초기화',
+    `<div style="background:var(--er-bg);color:var(--er-tx);padding:14px;border-radius:var(--r);border-left:3px solid var(--er)">
+      전체 감사 로그를 삭제합니다.<br><br>이 작업은 되돌릴 수 없습니다.
+    </div>`,
+    `<button class="btn bs" onclick="closeMo()">취소</button><button class="btn bd" onclick="clearAuditLog()">초기화</button>`);
+}
+async function clearAuditLog(){
+  try{
+    await sb.from('audit_log').delete().neq('id',0);
+    closeMo(); toast('감사 로그가 초기화되었습니다.','tok'); renderAudit();
+  }catch(e){ toast('오류: '+e.message,'terr'); }
+}
 async function renderAudit(){
   loading();
   try{
@@ -1286,7 +1704,13 @@ async function renderAudit(){
     const actionLabel={LOGIN:'로그인',LOGOUT:'로그아웃',VIEW_DOC:'문서 열람',CREATE_DOC:'문서 등록',SUBMIT_DOC:'결재 상신',APPROVE:'승인',REJECT:'반려',DISTRIBUTE:'배포',CONFIRM_READ:'열람 확인',REVISE:'개정 신청',CREATE_USER:'사용자 추가',UPDATE_USER:'사용자 수정',RESET_PW:'비번 초기화',UPDATE_USER_STATUS:'상태 변경',APPROVE_USER:'가입 승인',DELETE_USER:'사용자 삭제'};
     document.getElementById('pc').innerHTML=`
     <div class="page">
-      <div class="ph"><div><h1>감사 로그</h1><p>최근 100건 시스템 활동 기록</p></div></div>
+      <div class="ph">
+        <div><h1>감사 로그</h1><p>최근 100건 시스템 활동 기록</p></div>
+        <button class="btn bd" onclick="confirmClearAudit()" style="display:flex;align-items:center;gap:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          로그 초기화
+        </button>
+      </div>
       <div class="card"><div class="tw">
         <table><thead><tr><th>일시</th><th>사용자</th><th>부서</th><th>액션</th><th>대상</th><th>상세</th></tr></thead>
         <tbody>${logs.length===0?'<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--tx3)">로그 없음</td></tr>':
