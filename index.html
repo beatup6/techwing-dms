@@ -46,9 +46,11 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var
 #pg-app{display:none;height:100vh;overflow:hidden}
 #pg-app.on{display:flex}
 .sb{width:230px;background:var(--pri);display:flex;flex-direction:column;flex-shrink:0}
-.sb-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sb-logo img{height:24px;filter:brightness(0) invert(1);object-fit:contain}
-.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:5px}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sb-logo img{height:26px;filter:brightness(0) invert(1);object-fit:contain;display:block}
+.sb-logo-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:8px;letter-spacing:.02em;display:flex;align-items:center;gap:7px}
+.sb-logo-sub b{font-weight:800;color:#fff;font-size:12px;letter-spacing:.08em}
+.sb-logo-sub .divider{width:1px;height:11px;background:rgba(255,255,255,.3);display:inline-block}
 .sb-nav{flex:1;padding:8px 0;overflow-y:auto}
 .sb-sec{font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:9px 16px 3px}
 .ni{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;color:rgba(255,255,255,.68);font-size:13px;font-weight:500;transition:.15s;border-left:3px solid transparent;user-select:none}
@@ -261,7 +263,7 @@ textarea.fc{resize:vertical;min-height:70px}
 <!-- ════ APP ════ -->
 <div id="pg-app">
   <aside class="sb">
-    <div class="sb-logo"><img src="data:image/jpeg;base64,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" alt="TechWing"><div class="sb-logo-sub">전자 사내표준 문서관리</div></div>
+    <div class="sb-logo"><img src="data:image/jpeg;base64,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" alt="TechWing"><div class="sb-logo-sub"><b>DMS</b><span class="divider"></span><span>Document Management System</span></div></div>
     <nav class="sb-nav">
       <div class="sb-sec">메인</div>
       <div class="ni on" data-pg="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>대시보드</div>
@@ -306,8 +308,7 @@ textarea.fc{resize:vertical;min-height:70px}
 const SUPABASE_URL      = 'https://nwgqqafxivfqugooozsb.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53Z3FxYWZ4aXZmcXVnb29venNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0OTMzNTgsImV4cCI6MjA5NzA2OTM1OH0.oueoowz8ZJqAl-XBNe_BzDvzdDJ17s8aPokP5s18wPE';
 
-// AI 검토용 Claude API 키 (관리자가 설정에서 입력, 브라우저에 저장)
-let AI_API_KEY = localStorage.getItem('dms_ai_key') || '';
+// AI 검토는 ChatGPT 무료 웹을 이용한 수동 방식 (API 키 불필요)
 
 const { createClient } = window.supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -941,7 +942,7 @@ async function saveDoc(mode){
 }
 
 // ════════════════════════════════════════════════
-//  AI 검토 (Claude API 실제 호출)
+//  AI 검토 (ChatGPT 무료 웹 수동 방식 - API 키 불필요)
 // ════════════════════════════════════════════════
 const DEFAULT_AI_PROMPT=`당신은 ISO 9001, ISO 14001, ISO 45001 및 사내표준 문서 관리 기준을 이해하는 문서 심사자이다.
 다음 사내표준 문서를 검토하라.
@@ -966,66 +967,78 @@ const DEFAULT_AI_PROMPT=`당신은 ISO 9001, ISO 14001, ISO 45001 및 사내표�
 - 결재선 영향 여부: 있음/없음
 - 최종 판단: 승인 가능/보완 후 승인/반려 권고`;
 
+// 수동 AI 검토: ChatGPT 무료 웹에 붙여넣을 "프롬프트+문서" 묶음 생성
+function buildAiPackage(docNo,title,content){
+  return `${DEFAULT_AI_PROMPT}\n\n[검토 대상 문서]\n[${docNo}] ${title}\n${content}`;
+}
+function copyToClipboard(text,okMsg){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast(okMsg||'복사되었습니다.','tok')).catch(()=>fallbackCopy(text,okMsg));
+  } else fallbackCopy(text,okMsg);
+}
+function fallbackCopy(text,okMsg){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');toast(okMsg||'복사되었습니다.','tok');}catch(e){toast('복사 실패 - 직접 선택해 복사하세요.','terr');}
+  document.body.removeChild(ta);
+}
+
+// 등록된 문서 검토 (문서 상세에서)
 function showAiReviewMo(docId){
   dbGet('tb_document',{eq:{doc_id:docId}}).then(([d])=>{
     const content=(d.content_html||'').replace(/<[^>]+>/g,' ').trim()||'(본문 없음)';
-    openMo('🤖 AI 문서 검토',`
-      ${!AI_API_KEY?`<div style="background:var(--wn-bg);color:var(--wn-tx);padding:10px 12px;border-radius:var(--r);font-size:12px;margin-bottom:12px">AI API 키가 설정되지 않았습니다. 내 정보 > AI 설정에서 Claude API 키를 입력하세요.</div>`:''}
-      <div class="fg"><label class="fl">검토 프롬프트 (수정 가능)</label><textarea class="fc" id="ai-prompt" rows="8" style="font-size:11px">${esc(DEFAULT_AI_PROMPT)}</textarea></div>
-      <div class="fg"><label class="fl">검토 대상 문서</label><div style="font-size:12px;background:var(--surf2);padding:10px;border-radius:var(--r);max-height:120px;overflow-y:auto">[${esc(d.doc_no)}] ${esc(d.title)}\n\n${esc(content.slice(0,1500))}</div></div>
-      <div id="ai-result"></div>`,
-      `<button class="btn bs" onclick="closeMo()">닫기</button><button class="btn bw" id="ai-run-btn" onclick="runAiReview(${docId})">검토 실행</button>`,true);
+    const pkg=buildAiPackage(d.doc_no,d.title,content);
+    openMo('🤖 AI 문서 검토 (수동)',`
+      <div style="background:var(--in-bg);color:var(--in-tx);padding:11px 13px;border-radius:var(--r);font-size:12px;margin-bottom:14px;line-height:1.6">
+        <b>사용 방법 (무료)</b><br>
+        ① 아래 <b>검토 요청문 복사</b> 클릭<br>
+        ② <a href="https://chatgpt.com" target="_blank" style="color:var(--in-tx);font-weight:700;text-decoration:underline">ChatGPT 열기</a> → 붙여넣고 전송<br>
+        ③ ChatGPT 답변을 복사해 아래 <b>검토 결과</b> 칸에 붙여넣기<br>
+        ④ 위험도 선택 후 <b>결과 저장</b>
+      </div>
+      <div class="fg"><label class="fl">① 검토 요청문 (ChatGPT에 붙여넣기)</label>
+        <textarea class="fc" id="ai-pkg" rows="6" style="font-size:11px" readonly>${esc(pkg)}</textarea>
+        <button class="btn bp bsm" style="margin-top:6px" onclick="copyToClipboard(document.getElementById('ai-pkg').value,'검토 요청문이 복사되었습니다. ChatGPT에 붙여넣으세요.')">📋 검토 요청문 복사</button>
+        <a class="btn bs bsm" style="margin-top:6px;margin-left:6px;text-decoration:none" href="https://chatgpt.com" target="_blank">ChatGPT 열기 ↗</a>
+      </div>
+      <div class="fg"><label class="fl">② 위험도 선택</label>
+        <select class="fc" id="ai-risk"><option value="low">하 (승인 가능)</option><option value="mid">중 (보완 후 승인)</option><option value="high">상 (반려 권고)</option></select>
+      </div>
+      <div class="fg"><label class="fl">③ 검토 결과 (ChatGPT 답변 붙여넣기)</label>
+        <textarea class="fc" id="ai-result-input" rows="6" placeholder="ChatGPT가 답변한 검토 결과를 여기에 붙여넣으세요..."></textarea>
+      </div>`,
+      `<button class="btn bs" onclick="closeMo()">닫기</button><button class="btn bw" onclick="saveAiReview(${docId})">결과 저장</button>`,true);
   });
 }
+async function saveAiReview(docId){
+  const result=document.getElementById('ai-result-input').value.trim();
+  const risk=document.getElementById('ai-risk').value;
+  if(!result){toast('검토 결과를 붙여넣으세요.','terr');return;}
+  try{
+    await dbInsert('tb_ai_review',{doc_id:docId,prompt:DEFAULT_AI_PROMPT,result_text:result,risk_level:risk,created_by:CU.user_id});
+    await audit('AI_REVIEW','tb_document',docId,`위험도:${risk}(수동)`);
+    closeMo();toast('AI 검토 결과가 저장되었습니다.','tok');
+    if(curPg==='documents'&&selDocId===docId)setTimeout(()=>openDocDetail(docId),300);
+  }catch(e){toast('오류: '+e.message,'terr');}
+}
+
+// 작성 화면 사전 검토 (저장 전)
 function showAiReviewMoNew(){
   const content=(document.getElementById('f-content').innerHTML||'').replace(/<[^>]+>/g,' ').trim();
   const title=document.getElementById('f-title').value||'(제목 없음)';
+  const docNo=document.getElementById('f-no').value||'(번호 미정)';
   if(!content){toast('본문을 먼저 작성하세요.','terr');return;}
-  openMo('🤖 AI 사전 검토',`
-    ${!AI_API_KEY?`<div style="background:var(--wn-bg);color:var(--wn-tx);padding:10px 12px;border-radius:var(--r);font-size:12px;margin-bottom:12px">AI API 키 미설정. 내 정보 > AI 설정에서 입력하세요.</div>`:''}
-    <div class="fg"><label class="fl">검토 프롬프트</label><textarea class="fc" id="ai-prompt" rows="6" style="font-size:11px">${esc(DEFAULT_AI_PROMPT)}</textarea></div>
-    <input type="hidden" id="ai-content" value="${esc(content.slice(0,2000))}"><input type="hidden" id="ai-title" value="${esc(title)}">
-    <div id="ai-result"></div>`,
-    `<button class="btn bs" onclick="closeMo()">닫기</button><button class="btn bw" id="ai-run-btn" onclick="runAiReviewNew()">검토 실행</button>`,true);
-}
-async function callClaude(prompt,docText){
-  if(!AI_API_KEY) throw new Error('AI API 키가 설정되지 않았습니다. 내 정보 > AI 설정에서 입력하세요.');
-  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AI_API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:`${prompt}\n\n[검토 대상 문서]\n${docText}`}]})});
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`API 오류 (${res.status})`);}
-  const data=await res.json();
-  return data.content.map(c=>c.text||'').join('\n');
-}
-function parseRisk(text){if(/위험도[:\s]*상|반려 권고/.test(text))return 'high';if(/위험도[:\s]*중|보완 후 승인/.test(text))return 'mid';return 'low';}
-async function runAiReview(docId){
-  const btn=document.getElementById('ai-run-btn');const rEl=document.getElementById('ai-result');
-  const prompt=document.getElementById('ai-prompt').value;
-  btn.disabled=true;btn.textContent='검토 중...';rEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:14px;color:var(--tx3)"><div class="spinner"></div>AI가 문서를 검토하고 있습니다...</div>';
-  try{
-    const [d]=await dbGet('tb_document',{eq:{doc_id:docId}});
-    const content=(d.content_html||'').replace(/<[^>]+>/g,' ').trim()||d.title;
-    const result=await callClaude(prompt,`[${d.doc_no}] ${d.title}\n${content}`);
-    const risk=parseRisk(result);
-    await dbInsert('tb_ai_review',{doc_id:docId,prompt,result_text:result,risk_level:risk,created_by:CU.user_id});
-    await audit('AI_REVIEW','tb_document',docId,`위험도:${risk}`);
-    rEl.innerHTML=`<div style="margin-top:12px"><div style="margin-bottom:6px">${riskBadge(risk)}</div><div class="ai-box">${esc(result)}</div></div>`;
-    toast('AI 검토 완료 (결과 저장됨)','tok');
-    if(curPg==='documents'&&selDocId===docId)setTimeout(()=>openDocDetail(docId),500);
-  }catch(e){rEl.innerHTML=`<div style="color:var(--er);padding:12px;font-size:13px">검토 실패: ${esc(e.message)}</div>`;}
-  finally{btn.disabled=false;btn.textContent='검토 실행';}
-}
-async function runAiReviewNew(){
-  const btn=document.getElementById('ai-run-btn');const rEl=document.getElementById('ai-result');
-  const prompt=document.getElementById('ai-prompt').value;
-  const content=document.getElementById('ai-content').value;
-  const title=document.getElementById('ai-title').value;
-  btn.disabled=true;btn.textContent='검토 중...';rEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:14px;color:var(--tx3)"><div class="spinner"></div>AI 검토 중...</div>';
-  try{
-    const result=await callClaude(prompt,`[${title}]\n${content}`);
-    const risk=parseRisk(result);
-    rEl.innerHTML=`<div style="margin-top:12px"><div style="margin-bottom:6px">${riskBadge(risk)}</div><div class="ai-box">${esc(result)}</div></div>`;
-    toast('AI 사전 검토 완료','tok');
-  }catch(e){rEl.innerHTML=`<div style="color:var(--er);padding:12px;font-size:13px">검토 실패: ${esc(e.message)}</div>`;}
-  finally{btn.disabled=false;btn.textContent='검토 실행';}
+  const pkg=buildAiPackage(docNo,title,content);
+  openMo('🤖 AI 사전 검토 (수동)',`
+    <div style="background:var(--in-bg);color:var(--in-tx);padding:11px 13px;border-radius:var(--r);font-size:12px;margin-bottom:14px;line-height:1.6">
+      <b>사용 방법 (무료)</b><br>
+      ① 아래 <b>검토 요청문 복사</b> 클릭 → ② <a href="https://chatgpt.com" target="_blank" style="color:var(--in-tx);font-weight:700;text-decoration:underline">ChatGPT</a>에 붙여넣고 전송 → ③ 답변 확인 후 본문 보완
+    </div>
+    <div class="fg"><label class="fl">검토 요청문 (ChatGPT에 붙여넣기)</label>
+      <textarea class="fc" id="ai-pkg" rows="8" style="font-size:11px" readonly>${esc(pkg)}</textarea>
+      <button class="btn bp bsm" style="margin-top:6px" onclick="copyToClipboard(document.getElementById('ai-pkg').value,'검토 요청문이 복사되었습니다.')">📋 검토 요청문 복사</button>
+      <a class="btn bs bsm" style="margin-top:6px;margin-left:6px;text-decoration:none" href="https://chatgpt.com" target="_blank">ChatGPT 열기 ↗</a>
+    </div>`,
+    `<button class="btn bs" onclick="closeMo()">닫기</button>`,true);
 }
 
 // ════════════════════════════════════════════════
@@ -1278,9 +1291,8 @@ function showProfile(){
     <div class="fg"><label class="fl">현재 비밀번호</label><input type="password" class="fc" id="cp-old"></div>
     <div class="fg"><label class="fl">새 비밀번호</label><input type="password" class="fc" id="cp-new"></div>
     <button class="btn bp bsm" onclick="changePw()">비밀번호 변경</button>
-    ${['admin','standard_mgr'].includes(CU.role)?`<div class="div"></div><div class="sec">🤖 AI 검토 설정 (Claude API)</div>
-    <div class="fg"><label class="fl">Claude API 키</label><input type="password" class="fc" id="ai-key" value="${esc(AI_API_KEY)}" placeholder="sk-ant-..."><div style="font-size:11px;color:var(--tx3);margin-top:4px">console.anthropic.com 에서 발급. 이 브라우저에만 저장됩니다.</div></div>
-    <button class="btn bw bsm" onclick="saveAiKey()">API 키 저장</button>`:''}`,
+    <div class="div"></div><div class="sec">🤖 AI 검토 안내</div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.6;background:var(--surf2);padding:11px 13px;border-radius:var(--r)">AI 검토는 무료 ChatGPT 웹을 이용합니다.<br>문서 화면의 <b>🤖 AI 검토 실행</b> → 검토 요청문 복사 → ChatGPT에 붙여넣기 → 결과를 다시 시스템에 저장하는 방식입니다. 별도 API 키나 비용이 필요 없습니다.</div>`,
     `<button class="btn bs" onclick="closeMo()">닫기</button>`);
 }
 async function changePw(){
@@ -1289,7 +1301,6 @@ async function changePw(){
   if(n.length<6){toast('새 비밀번호는 6자 이상이어야 합니다.','terr');return;}
   await dbUpdate('tb_user','user_id',CU.user_id,{password_hash:n});CU.password_hash=n;sessionStorage.setItem('dms2_cu',JSON.stringify(CU));toast('비밀번호가 변경되었습니다.','tok');
 }
-function saveAiKey(){AI_API_KEY=document.getElementById('ai-key').value.trim();localStorage.setItem('dms_ai_key',AI_API_KEY);toast('AI API 키가 저장되었습니다.','tok');}
 
 async function toggleNotif(){
   notifOpen=!notifOpen;
